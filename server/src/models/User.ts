@@ -1,70 +1,76 @@
-export default function(sequelize, DataTypes) {
-	let users = sequelize.define(
-		'users',
-		{
-			id: {
-				type: DataTypes.INTEGER,
-				primaryKey: true,
-				autoIncrement: true,
-			},
-			uuid: {
-				type: DataTypes.STRING,
-				defaultValue: DataTypes.UUIDV4,
-				allowNull: false,
-			},
-			first_name: {
-				type: DataTypes.STRING,
-				allowNull: false,
-			},
-			last_name: {
-				type: DataTypes.STRING,
-				allowNull: false,
-			},
-			username: {
-				type: DataTypes.STRING,
-				allowNull: false,
-				set(value) {
-					this.setDataValue('username', value.toLowerCase());
-				},
-			},
-			email: {
-				type: DataTypes.STRING,
-				allowNull: false,
-				set(value) {
-					this.setDataValue('email', value.toLowerCase());
-				},
-				validate: {
-					isEmail: {
-						args: true,
-						msg:
-							'Email must be in email format i.e. `jane@gmail.com`',
-					},
-				},
-			},
-			password: {
-				type: DataTypes.STRING,
-				allowNull: false,
-				validate: {
-					len: {
-						args: [6, 255],
-						msg: 'Password must be between 6 and 255 characters',
-					},
-				},
+import { DataTypeAbstract, DefineAttributeColumnOptions, Instance, Model } from 'sequelize';
+import * as Sequelize from 'sequelize';
+
+export interface UserAttributes {
+	id: number;
+	uuid: string;
+	first_name: string;
+	last_name: string;
+	username: string;
+	email: string;
+	password: string;
+}
+
+type UserDefineAttributes = {
+	[x in keyof UserAttributes]:
+		| string
+		| DataTypeAbstract
+		| DefineAttributeColumnOptions
+};
+
+export const UserAttrs: UserDefineAttributes = {
+	id: {
+		type: Sequelize.INTEGER,
+		primaryKey: true,
+		autoIncrement: true,
+	},
+	uuid: {
+		type: Sequelize.STRING,
+		defaultValue: Sequelize.UUIDV4,
+		allowNull: false,
+	},
+	first_name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	},
+	last_name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+	},
+	username: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		set(this: UserInstance, value) {
+			this.setDataValue('username', value.toLowerCase());
+		},
+	},
+	email: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		validate: {
+			isEmail: {
+				args: true,
+				msg: 'Email must be in email format i.e. `jane@gmail.com`',
 			},
 		},
-		{
-			tableName: 'users',
-			paranoid: true,
-			timestamps: true,
-			underscored: true,
-			indexes: [
-				{
-					unique: true,
-					fields: ['username', 'email'],
-				},
-			],
-		}
-	);
+		set(this: UserInstance, value) {
+			this.setDataValue('email', value.toLowerCase());
+		},
+	},
+	password: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		validate: {
+			len: {
+				args: [6, 255],
+				msg: 'Password must be between 6 and 255 characters',
+			},
+		},
+	},
+};
 
-	return users;
+export interface UserInstance extends Instance<UserAttributes> {
+	get(): UserAttributes;
 }
+
+export interface User extends Model<UserInstance, UserAttributes> {}

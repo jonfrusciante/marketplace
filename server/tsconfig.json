@@ -1,10 +1,26 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
+		"outDir": "build",
 		"module": "commonjs",
-		"target": "es6",
-		"outDir": "./build",
-		"lib": ["es2015"]
+		"target": "es5",
+		"lib": ["es6"],
+		"sourceMap": true,
+		"allowJs": true,
+		"moduleResolution": "node",
+		"rootDir": "src",
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"suppressImplicitAnyIndexErrors": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"alwaysStrict": true,
+		"strictFunctionTypes": true
 	},
 	"include": ["./src"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "build", "tests"]
 }

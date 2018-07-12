@@ -1,7 +1,13 @@
-export default function requireLogin(req, res, next) {
-	if (!req.user) {
-		res.redirect('/login');
-	} else {
-		next();
-	}
-}
+// import { Request, Response, NextFunction } from 'express';
+
+// export default function requireLogin(
+// 	req: Request,
+// 	res: Response,
+// 	next: NextFunction
+// ) {
+// 	if (!req) {
+// 		res.redirect('/login');
+// 	} else {
+// 		next();
+// 	}
+// }
