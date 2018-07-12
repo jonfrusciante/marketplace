@@ -1,16 +1,7 @@
 import Controller from './Controller';
 import * as argon2 from 'argon2';
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response } from 'express';
 import { User } from '../db';
-
-interface User {
-	uuid: string;
-	first_name: string;
-	last_name: string;
-	username: string;
-	email: string;
-	password: string;
-}
 
 class LoginController extends Controller {
 	router: Router;
@@ -22,24 +13,25 @@ class LoginController extends Controller {
 		this.routes();
 	}
 
-	private verifyPassword = async (
-		hash: string,
-		password: string
-	): Promise<boolean> => {
+	routes() {
+		this.router.post('/', this.loginUser);
+	}
+
+	private verifyPassword = async (hash: string, password: string): Promise<boolean> => {
 		try {
 			const verified = await argon2.verify(hash, password);
 
 			return verified;
-		} catch (err) {
-			console.log(err);
+		} catch (error) {
+			console.log(error);
 
 			return false;
 		}
 	};
 
-	private getUser = async (email): Promise<User> => {
+	private getUser = async (email: string): Promise<any> => {
 		try {
-			let user = await User.findOne({
+			const user = await User.findOne({
 				where: { email },
 			});
 			if (user === null) {
@@ -57,25 +49,31 @@ class LoginController extends Controller {
 	private loginUser = async (req: Request, res: Response): Promise<void> => {
 		try {
 			let { email, password } = req.body;
+
+			if (email === '' || password === '') {
+				res.send(400).json({ success: false, message: 'You must fill out all fields.' });
+
+				return;
+			}
 			email = this.escapeString(email);
 			password = this.escapeString(password);
 
-			let user = await this.getUser(email);
+			const user = await this.getUser(email);
 
 			if (user === null) {
-				res.status(403).json({ message: 'User does not exist' });
+				res.status(400).json({ success: false, message: 'User does not exist.' });
 
 				return;
 			}
 
-			const verified = await this.verifyPassword(user.password, password);
+			const verified = await this.verifyPassword(String(user.password), String(password));
 			if (!verified) {
-				res.status(403).json({ message: 'Password is incorrect' });
+				res.status(400).json({ success: false, message: 'Password is incorrect.' });
 
 				return;
 			}
 
-			let response = {
+			const response = {
 				uuid: user.uuid,
 				first_name: user.first_name,
 				last_name: user.last_name,
@@ -83,23 +81,20 @@ class LoginController extends Controller {
 				email: user.email,
 			};
 			// @TODO: Add sessions
-			res.status(200).json({ response });
+			res.status(200).json({ success: true, response });
 
 			return;
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({ error });
+			res.status(500).json({ success: false, errors: error.message, message: 'Something went wrong, please try again.' });
 
 			return;
 		}
 	};
-
-	routes() {
-		this.router.post('/', this.loginUser);
-	}
 }
 
 const loginController = new LoginController();
 loginController.routes();
+const controller = loginController.router;
 
-export default loginController.router;
+export { controller };

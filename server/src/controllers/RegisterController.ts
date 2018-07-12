@@ -1,12 +1,7 @@
 import Controller from './Controller';
 import * as argon2 from 'argon2';
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response } from 'express';
 import { User } from '../db';
-
-interface User {
-	email: string;
-	password: string;
-}
 
 class RegisterController extends Controller {
 	router: Router;
@@ -18,7 +13,11 @@ class RegisterController extends Controller {
 		this.routes();
 	}
 
-	private hashPassword = async (password: Buffer): Promise<string> => {
+	routes() {
+		this.router.post('/', this.registerUser);
+	}
+
+	private hashPassword = async (password: Buffer): Promise<string | null> => {
 		const options = {
 			timeCost: 4,
 			memoryCost: 2 ** 13,
@@ -31,16 +30,15 @@ class RegisterController extends Controller {
 
 			return hash;
 		} catch (error) {
-			console.log(error.message);
-			// this.handleError(error.message, null);
+			console.log(error);
 
 			return null;
 		}
 	};
 
-	private getUser = async (email): Promise<User> => {
+	private getUser = async (email: string): Promise<any> => {
 		try {
-			let user = await User.findOne({
+			const user = await User.findOne({
 				where: { email },
 			});
 			if (user === null) {
@@ -49,18 +47,27 @@ class RegisterController extends Controller {
 
 			return user;
 		} catch (error) {
-			console.error(error);
+			console.error(error.message);
 
 			return null;
 		}
 	};
 
-	private registerUser = async (
-		req: Request,
-		res: Response
-	): Promise<void> => {
+	private registerUser = async (req: Request, res: Response): Promise<void> => {
 		try {
 			let { first_name, last_name, username, email, password } = req.body;
+
+			if (
+				first_name === '' ||
+				last_name === '' ||
+				username === '' ||
+				email === '' ||
+				password === ''
+			) {
+				res.send(400).json({ success: false, message: 'You must fill out all fields' });
+
+				return;
+			}
 
 			first_name = this.escapeString(first_name);
 			last_name = this.escapeString(last_name);
@@ -68,19 +75,17 @@ class RegisterController extends Controller {
 			email = this.escapeString(email);
 			password = this.escapeString(password);
 
-			let userExist = await this.getUser(email);
+			const userExist = await this.getUser(email);
 
 			if (userExist !== null) {
-				res.status(403).json({ message: 'User already exists.' });
+				res.status(400).json({ success: false, message: 'User already exists.' });
 
 				return;
 			}
 
 			password = await this.hashPassword(password);
 			if (password === null) {
-				res.status(500).json({
-					message: 'Something went wrong, please try again.',
-				});
+				res.status(500).json({ success: false, message: 'Something went wrong, please try again.' });
 
 				return;
 			}
@@ -92,24 +97,37 @@ class RegisterController extends Controller {
 				email,
 				password,
 			});
-			await user.save();
-			res.status(200).json({ user });
+
+			try {
+				await user.save();
+			} catch (error) {
+				res.status(500).json({ success: false, errors: error.message, message: 'Something went wrong, please try again.' });
+				console.log(error);
+
+				return;
+			}
+
+			const response = {
+				uuid: user.uuid,
+				first_name: user.first_name,
+				last_name: user.last_name,
+				username: user.username,
+				email: user.email,
+			};
+			res.status(200).json({ success: true, response });
 
 			return;
 		} catch (error) {
-			console.log(error.message);
-			// this.handleError(error.message, res);
+			res.status(500).json({ success: false, errors: error.message, message: 'Something went wrong, please try again.' });
+			console.log(error);
 
 			return;
 		}
 	};
-
-	routes() {
-		this.router.post('/', this.registerUser);
-	}
 }
 
 const registerController = new RegisterController();
 registerController.routes();
+const controller = registerController.router;
 
-export default registerController.router;
+export { controller };
