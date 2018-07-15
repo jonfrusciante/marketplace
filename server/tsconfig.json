@@ -2,9 +2,10 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"outDir": "build",
-		"module": "commonjs",
 		"target": "es5",
-		"lib": ["es6"],
+		"module": "commonjs",
+		"lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
+		"typeRoots": ["node_modules/@types"],
 		"sourceMap": true,
 		"allowJs": true,
 		"moduleResolution": "node",
@@ -19,7 +20,9 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 		"alwaysStrict": true,
-		"strictFunctionTypes": true
+		"strictFunctionTypes": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true
 	},
 	"include": ["./src"],
 	"exclude": ["node_modules", "build", "tests"]
