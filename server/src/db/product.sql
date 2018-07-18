@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS `product` (
+  `id` VARCHAR (255) NOT NULL,
+  `name` VARCHAR (45) NOT NULL,
+  `slug` VARCHAR (255) NOT NULL,
+  `status` ENUM('1', '0') COLLATE utf8_unicode_ci NOT NULL DEFAULT '1' COMMENT '1:Active, 0:Inactive',
+  `createTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updateTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
