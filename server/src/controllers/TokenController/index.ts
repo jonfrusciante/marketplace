@@ -2,6 +2,7 @@ import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
 import * as uuid from 'uuid/v4';
 import * as crypto from 'crypto';
+
 import { createSecret } from '../../lib/helpers/secret';
 
 class TokenController extends Controller {

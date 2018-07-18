@@ -1,7 +1,9 @@
 import { Controller } from '../Controller';
-import * as argon2 from 'argon2';
 import { Router, Request, Response } from 'express';
+
 import { User } from '../../models/User';
+import { hashPassword } from '../../lib/auth/password';
+import { escapeString } from '../../lib/helpers/escapeString';
 
 class RegisterController extends Controller {
 	router: Router;
@@ -16,25 +18,6 @@ class RegisterController extends Controller {
 	routes() {
 		this.router.post('/', this.registerUser);
 	}
-
-	private hashPassword = async (password: Buffer): Promise<string | null> => {
-		const options = {
-			timeCost: 4,
-			memoryCost: 2 ** 13,
-			parallelism: 2,
-			type: argon2.argon2d,
-		};
-
-		try {
-			const hash = await argon2.hash(password, options);
-
-			return hash;
-		} catch (error) {
-			console.log(error);
-
-			return null;
-		}
-	};
 
 	private registerUser = async (
 		req: Request,
@@ -58,13 +41,13 @@ class RegisterController extends Controller {
 				return;
 			}
 
-			firstName = this.escapeString(firstName);
-			lastName = this.escapeString(lastName);
-			username = this.escapeString(username);
-			email = this.escapeString(email);
-			password = this.escapeString(password);
+			firstName = escapeString(firstName);
+			lastName = escapeString(lastName);
+			username = escapeString(username);
+			email = escapeString(email);
+			password = escapeString(password);
 
-			const userExist = await this.getUser(email);
+			const userExist = await this.getUserByEmail(email);
 
 			if (userExist !== null) {
 				res.status(400).json({
@@ -75,7 +58,7 @@ class RegisterController extends Controller {
 				return;
 			}
 
-			password = await this.hashPassword(password);
+			password = await hashPassword(password);
 			if (password === null) {
 				res.status(500).json({
 					success: false,

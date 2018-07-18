@@ -1,6 +1,6 @@
-import * as escape from 'escape-html';
 import * as dotenv from 'dotenv';
 import { createConnection, getRepository } from 'typeorm';
+
 import { User } from '../../models/User';
 
 class Controller {
@@ -14,9 +14,10 @@ class Controller {
 		const database = process.env.DB_DATABASE;
 		const password = process.env.DB_PASSWORD;
 		const username = process.env.DB_USER;
+		const port = Number(process.env.DB_PORT);
 		const connection = await createConnection({
 			type: 'mysql',
-			port: 3306,
+			port,
 			host,
 			username,
 			password,
@@ -36,11 +37,7 @@ class Controller {
 		await connection.connect();
 	};
 
-	public escapeString = (str: string): string => {
-		return escape(String(str));
-	};
-
-	public getUser = async (email: string): Promise<any> => {
+	public getUserByEmail = async (email: string): Promise<any> => {
 		try {
 			const user = await getRepository(User).findOne({
 				where: { email },

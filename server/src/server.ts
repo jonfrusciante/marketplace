@@ -7,9 +7,10 @@ import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as frameguard from 'frameguard';
 import * as dotenv from 'dotenv';
-// import * as cookieParser from 'cookie-parser';
-// import * as session from 'express-session';
-// import * as redis from 'connect-redis';
+import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session';
+import * as mysqlStore from 'express-mysql-session';
+import * as passport from 'passport';
 
 import {
 	UserController,
@@ -18,6 +19,8 @@ import {
 	LogoutController,
 	TokenController,
 } from './controllers';
+import { getRepository } from 'typeorm';
+import { User } from './models/User';
 
 class Server {
 	public app: express.Application;
@@ -38,26 +41,36 @@ class Server {
 		this.app.use(logger('dev'));
 		this.app.use(helmet());
 		this.app.use(cors());
-		// this.app.use(cookieParser(secret(10)));
+		this.app.use(cookieParser());
 		// this.app.use(csrf());
-		// const redisStore = redis(session);
-		// this.app.use(
-		// 	session({
-		// 		store: new redisStore({
-		// 			host: process.env.REDIS_HOST,
-		// 		}),
-		// 		secret: `${process.env.SESSION_SECRET}`,
-		// 		saveUninitialized: false,
-		// 		resave: false,
-		// 		cookie: {
-		// 			path: '/',
-		// 			httpOnly: true,
-		// 			maxAge: 604800, // 7 days
-		// 			domain: `${process.env.CLIENT_URL}`,
-		// 			secure: process.env.NODE_ENV === 'production',
-		// 		},
-		// 	})
-		// );
+		this.app.use(
+			session({
+				secret: `${process.env.SESSION_SECRET}`,
+				saveUninitialized: true,
+				resave: false,
+				store: new mysqlStore({
+					host: process.env.DB_HOST,
+					port: Number(process.env.DB_PORT),
+					user: process.env.DB_USER,
+					password: process.env.DB_PASSWORD,
+					database: process.env.DB_DATABASE,
+					expiration: Number(process.env.SESSION_EXPIRE),
+					createDatabaseTable: true,
+				}),
+				cookie: {
+					path: '/',
+					httpOnly: true,
+					expires: new Date(
+						Date.now() + Number(process.env.SESSION_EXPIRE)
+					),
+					maxAge: Number(process.env.SESSION_EXPIRE),
+					// domain: `${process.env.CLIENT_URL}`,
+					secure: process.env.NODE_ENV === 'production',
+				},
+			})
+		);
+		this.app.use(passport.initialize());
+		this.app.use(passport.session());
 	}
 
 	public async routes() {
@@ -69,6 +82,28 @@ class Server {
 		this.app.use('/api/v1/login', LoginController);
 		this.app.use('/api/v1/logout', LogoutController);
 		this.app.use('/api/v1/token', TokenController);
+		passport.serializeUser((user, done) => {
+			done(null, user);
+		});
+
+		passport.deserializeUser(async (id, done) => {
+			try {
+				const user = await getRepository(User).findOne(id, {
+					select: [
+						'id',
+						'firstName',
+						'lastName',
+						'username',
+						'email',
+					],
+				});
+
+				done(null, user);
+			} catch (error) {
+				console.log('Error: ', error);
+				done(error, false);
+			}
+		});
 		this.app.use(
 			(
 				err: express.ErrorRequestHandler,
@@ -78,7 +113,7 @@ class Server {
 			) => {
 				console.log(err);
 				console.log(req);
-				res.send(404).json({
+				res.status(404).json({
 					success: false,
 					message: '404 - Page not found.',
 				});

@@ -1,13 +1,15 @@
-// import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
-// export default function requireLogin(
-// 	req: Request,
-// 	res: Response,
-// 	next: NextFunction
-// ) {
-// 	if (!req) {
-// 		res.redirect('/login');
-// 	} else {
-// 		next();
-// 	}
-// }
+export const requireLogin = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	if (req.isAuthenticated()) {
+		return next();
+	}
+
+	res.status(403).json({ success: false, message: 'Access Denied.' });
+
+	return;
+}

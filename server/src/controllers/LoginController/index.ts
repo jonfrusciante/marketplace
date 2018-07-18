@@ -1,8 +1,8 @@
 import { Controller } from '../Controller';
-import * as argon2 from 'argon2';
 import { Router, Request, Response } from 'express';
 
-// import { User } from '../../models/User';
+import { verifyPassword } from '../../lib/auth/password';
+import { escapeString } from '../../lib/helpers/escapeString';
 
 class LoginController extends Controller {
 	router: Router;
@@ -18,21 +18,6 @@ class LoginController extends Controller {
 		this.router.post('/', this.loginUser);
 	}
 
-	private verifyPassword = async (
-		hash: string,
-		password: string
-	): Promise<boolean> => {
-		try {
-			const verified = await argon2.verify(hash, password);
-
-			return verified;
-		} catch (error) {
-			console.log(error);
-
-			return false;
-		}
-	};
-
 	private loginUser = async (req: Request, res: Response): Promise<void> => {
 		try {
 			let { email, password } = req.body;
@@ -45,10 +30,11 @@ class LoginController extends Controller {
 
 				return;
 			}
-			email = this.escapeString(email);
-			password = this.escapeString(password);
 
-			const user = await this.getUser(email);
+			email = escapeString(email);
+			password = escapeString(password);
+
+			const user = await this.getUserByEmail(email);
 
 			if (user === null) {
 				res.status(400).json({
@@ -59,7 +45,7 @@ class LoginController extends Controller {
 				return;
 			}
 
-			const verified = await this.verifyPassword(
+			const verified = await verifyPassword(
 				String(user.password),
 				String(password)
 			);
@@ -74,14 +60,28 @@ class LoginController extends Controller {
 
 			const response = {
 				id: user.id,
-				first_name: user.first_name,
-				last_name: user.last_name,
+				firstName: user.firstName,
+				lastName: user.lastName,
 				username: user.username,
 				email: user.email,
 			};
 
-			// @TODO: Add sessions
-			res.status(200).json({ success: true, response });
+			req.login(response.id, error => {
+				console.log('Login ID: ', response.id);
+				if (error) {
+					res.status(500).json({
+						success: false,
+						error: error.message,
+						message: 'Something went wrong, please try again.',
+					});
+
+					return;
+				}
+
+				res.status(200).json({ success: true, response });
+
+				return;
+			});
 
 			return;
 		} catch (error) {
