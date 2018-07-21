@@ -1,43 +1,21 @@
 import * as dotenv from 'dotenv';
-import { createConnection, getRepository } from 'typeorm';
-
-import { User } from '../../models/User';
+import { getRepository } from 'typeorm';
+import { User } from '../../models';
 
 class Controller {
 	constructor() {
 		dotenv.config();
-		this.dbInit();
 	}
 
-	public dbInit = async () => {
-		const host = process.env.DB_HOST;
-		const database = process.env.DB_DATABASE;
-		const password = process.env.DB_PASSWORD;
-		const username = process.env.DB_USER;
-		const port = Number(process.env.DB_PORT);
-		const connection = await createConnection({
-			type: 'mysql',
-			port,
-			host,
-			username,
-			password,
-			database,
-			synchronize: true,
-			logging: true,
-			entities: ['build/models/**/*.js'],
-			migrations: ['build/migrations/**/*.js'],
-			subscribers: ['build/subscribers/**/*.js'],
-			cli: {
-				entitiesDir: 'build/models',
-				migrationsDir: 'build/migrations',
-				subscribersDir: 'build/subscribers',
-			},
-		});
-		await connection.close();
-		await connection.connect();
-	};
+	public formatSlug = (slug: string): string => {
+		return this.escapeString(slug).replace(/\s+/g, '-').toLowerCase();
+	}
 
-	public getUserByEmail = async (email: string): Promise<any> => {
+	public escapeString = (str: string): string => {
+		return escape(String(str));
+	}
+
+	public getUserByEmail = async (email: string): Promise<User | null> => {
 		try {
 			const user = await getRepository(User).findOne({
 				where: { email },
@@ -53,7 +31,25 @@ class Controller {
 
 			return null;
 		}
-	};
+	}
+
+	public getUserByUsername = async (username: string): Promise<User | null> => {
+		try {
+			const user = await getRepository(User).findOne({
+				where: { username },
+			});
+
+			if (typeof user === 'undefined') {
+				return null;
+			}
+
+			return user;
+		} catch (error) {
+			console.error(error);
+
+			return null;
+		}
+	}
 }
 
 export { Controller };

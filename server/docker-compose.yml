@@ -1,0 +1,34 @@
+version: '3'
+services:
+  db:
+    image: mysql
+    networks:
+      - webnet
+    environment:
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: ecommerce
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+  redis:
+    image: redis
+    networks:
+      - webnet
+  web:
+    image: ecommerce-server
+    ports:
+      - '8081:8081'
+    depends_on:
+      - db
+    networks:
+      - webnet
+    environment:
+      DB_HOST: db
+      REDIS_HOST: redis
+    command:
+      - ./wait-for-it.sh
+      - 'db:5432'
+      - '--'
+      - node
+      - index.js
+networks:
+  webnet: null

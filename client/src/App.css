@@ -1,28 +1,97 @@
+@import '~antd/dist/antd.css';
+
+html,
+body {
+	height: 100%;
+	color: #212121;
+}
+
+a {
+	color: #212121 !important;
+}
+
+a:hover {
+	color: #8a8c91 !important;
+	text-decoration: none !important;
+	transition: 100ms ease all;
+}
+
 .App {
-  text-align: center;
+	/*background-color: #f7f9fb;*/
+	font-size: 14px;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.App .brand {
+	width: 90px;
+	height: 90px;
+	overflow: hidden;
+	border-radius: 50%;
+	margin: 0 auto;
+	margin: 40px auto;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.App .brand img {
+	width: 100%;
 }
 
-.App-title {
-  font-size: 1.5em;
+.App .card-wrapper {
+	width: 400px;
+	margin: 0 auto;
 }
 
-.App-intro {
-  font-size: large;
+.App .card {
+	border-color: transparent;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.App .card.fat {
+	padding: 10px;
+}
+
+.App .card .card-title {
+	margin-bottom: 30px;
+}
+
+.App .form-control {
+	border-width: 2.3px;
+}
+
+.App .form-group label {
+	width: 100%;
+}
+
+.App .btn.btn-block {
+	padding: 12px 10px;
+}
+
+.App .margin-top20 {
+	margin-top: 20px;
+}
+
+.App .no-margin {
+	margin: 0;
+}
+
+.App .footer {
+	margin: 40px 0;
+	color: #888;
+	text-align: center;
+}
+
+@media screen and (max-width: 425px) {
+	.App .card-wrapper {
+		width: 90%;
+		margin: 0 auto;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	.App .card.fat {
+		padding: 0;
+	}
+
+	.App .card.fat .card-body {
+		padding: 15px;
+	}
 }

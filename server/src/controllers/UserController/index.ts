@@ -1,13 +1,12 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
-import { getRepository, Repository } from 'typeorm';
+import { getRepository } from 'typeorm';
 
-import { User } from '../../models/User';
+import { User } from '../../models';
 import { requireLogin } from '../../lib/middleware/requireLogin';
 
 class UserController extends Controller {
 	router: Router;
-	db: Repository<User>;
 
 	constructor() {
 		super();
@@ -17,39 +16,29 @@ class UserController extends Controller {
 	}
 
 	routes() {
-		this.router.get('/', requireLogin, this.getUsers);
-		this.router.get('/:username?*', requireLogin, this.getUserById);
-		this.router.put('/:id/:username?*', requireLogin, this.updateUser);
-		this.router.delete('/:id/:username?*', requireLogin, this.deleteUser);
+		this.router.get('/', this.getUsers);
+		this.router.get('/:username', this.getUser);
+		this.router.put('/:username', requireLogin, this.updateUser);
+		this.router.delete('/:username', requireLogin, this.deleteUser);
 	}
 
-	public getUserById = async (req: Request, res: Response): Promise<void> => {
+	public getUser = async (req: Request, res: Response): Promise<void> => {
 		try {
-			console.log('User: ', req.user);
-			console.log('Auth: ', req.isAuthenticated());
-
-			if (req.user) {
-				const id = req.user.id;
-				const response = await getRepository(User).findOne({
-					select: [
-						'id',
-						'firstName',
-						'lastName',
-						'username',
-						'email',
-					],
-					where: { id },
-				});
-
-				res.status(200).json({ success: true, response });
-
-				return;
-			}
-
-			res.status(403).json({
-				success: false,
-				message: 'Access Denied.',
+			const username = this.escapeString(req.params.username);
+			const response = await getRepository(User).findOne({
+				select: [
+					'id',
+					'firstName',
+					'lastName',
+					'username',
+					'email',
+					'DOB',
+					'gender',
+				],
+				where: { username },
 			});
+
+			res.status(200).json({ success: true, response });
 
 			return;
 		} catch (error) {
@@ -64,18 +53,22 @@ class UserController extends Controller {
 		}
 	};
 
-	public getUsers = async (req: Request, res: Response): Promise<void> => {
+	public getUsers = async (_: Request, res: Response): Promise<void> => {
 		try {
-			console.log('User: ', req.user);
-			console.log('Auth: ', req.isAuthenticated());
 			const response = await getRepository(User).find({
-				select: ['id', 'firstName', 'lastName', 'username', 'email'],
+				select: [
+					'id',
+					'firstName',
+					'lastName',
+					'username',
+					'email',
+					'DOB',
+					'gender',
+				],
 				order: {
 					username: 'DESC',
 				},
 			});
-
-			console.log(response);
 
 			res.status(200).json({ success: true, response });
 
@@ -90,15 +83,48 @@ class UserController extends Controller {
 
 			return;
 		}
-	};
+	}
 
 	public updateUser = async (req: Request, res: Response): Promise<void> => {
-		const id: number = req.params.id;
+		const username: string = req.params.username;
 		try {
-			const response = await getRepository(User).update(id, {
-				...req.body,
-			});
-			res.status(200).json({ success: true, response });
+			// Check if user can perform this action
+			if (!req.user || req.user.username !== username) {
+				res.status(403).json({
+					success: false,
+					message: 'You cannot perform this action.',
+				});
+
+				return;
+			}
+
+			const data = {};
+			for (const key in req.body) {
+				if (/\S/.test(req.body[key])) {
+					data[key] = this.escapeString(req.body[key]);
+					if (key === 'email') {
+						data[key] = this.escapeString(req.body[key]).toLowerCase();
+					}
+					if (key === 'username') {
+						data[key] = this.escapeString(req.body[key]).toLowerCase().replace(/\s/g, '');
+					}
+				}
+			}
+
+			try {
+				await getRepository(User).update({ username }, data);
+			} catch (error) {
+				res.status(500).json({
+					success: false,
+					errors: error.message,
+					message: 'Something went wrong, please try again.',
+				});
+				console.log(error);
+
+				return;
+			}
+
+			res.status(200).json({ success: true, message: 'User updated sucessfully.' });
 
 			return;
 		} catch (error) {
@@ -114,9 +140,9 @@ class UserController extends Controller {
 	};
 
 	public deleteUser = async (req: Request, res: Response): Promise<void> => {
-		const id: number = req.params.id;
+		const username: string = req.params.username;
 		try {
-			await getRepository(User).delete(id);
+			await getRepository(User).delete({ username });
 
 			res.status(200).json({
 				success: true,
@@ -134,7 +160,7 @@ class UserController extends Controller {
 
 			return;
 		}
-	};
+	}
 }
 
 const userController = new UserController();

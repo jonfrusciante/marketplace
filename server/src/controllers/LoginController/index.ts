@@ -2,7 +2,6 @@ import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
 
 import { verifyPassword } from '../../lib/auth/password';
-import { escapeString } from '../../lib/helpers/escapeString';
 
 class LoginController extends Controller {
 	router: Router;
@@ -15,10 +14,10 @@ class LoginController extends Controller {
 	}
 
 	routes() {
-		this.router.post('/', this.loginUser);
+		this.router.post('/', this.login);
 	}
 
-	private loginUser = async (req: Request, res: Response): Promise<void> => {
+	private login = async (req: Request, res: Response): Promise<void> => {
 		try {
 			let { email, password } = req.body;
 
@@ -31,8 +30,8 @@ class LoginController extends Controller {
 				return;
 			}
 
-			email = escapeString(email);
-			password = escapeString(password);
+			email = this.escapeString(email);
+			password = this.escapeString(password);
 
 			const user = await this.getUserByEmail(email);
 
@@ -64,6 +63,8 @@ class LoginController extends Controller {
 				lastName: user.lastName,
 				username: user.username,
 				email: user.email,
+				gender: user.gender,
+				dob: user.DOB,
 			};
 
 			req.login(response.id, error => {

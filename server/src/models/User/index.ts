@@ -1,14 +1,29 @@
-import * as uuid from 'uuid/v4';
 import {
 	Entity,
 	PrimaryColumn,
 	Column,
-	BaseEntity,
 	BeforeInsert,
+	CreateDateColumn,
+	UpdateDateColumn,
+	OneToOne,
+	OneToMany,
+	VersionColumn,
 } from 'typeorm';
 
-@Entity('users')
-export class User extends BaseEntity {
+import { Model, UserCart, Order } from '..';
+
+enum Role {
+	'Admin',
+	'Vendor',
+	'Customer'
+}
+
+enum Gender {
+	'Male',
+	'Female',
+}
+@Entity('user')
+class User extends Model {
 	@PrimaryColumn('uuid') id: string;
 
 	@Column('varchar', { length: 255, unique: true, nullable: false })
@@ -26,15 +41,49 @@ export class User extends BaseEntity {
 	@Column('varchar', { length: 255, nullable: false })
 	lastName: string;
 
+	@Column('date', { nullable: false })
+	DOB: Date;
+
+	@Column('enum', { enum: ['Male', 'Female'], nullable: false })
+	gender: Gender;
+
+	@Column('enum', {
+		enum: ['Admin', 'Vendor', 'Customer'],
+		default: 'Customer',
+		nullable: false,
+	})
+	role: Role;
+
 	@Column('tinyint', { width: 1, default: 0, nullable: false })
 	confirmed: boolean;
 
+	@CreateDateColumn({ type: 'timestamp' })
+	createdAt: Date;
+
+	@UpdateDateColumn({ type: 'timestamp' })
+	updatedAt: Date;
+
+	@VersionColumn({ default: 1 })
+	version: number;
+
+	@OneToOne(() => UserCart, userCart => userCart.userId, {
+		cascade: true,
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+	})
+	userCart: UserCart;
+
+	@OneToMany(() => Order, order => order.id, {
+		cascade: true,
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
+	})
+	order: Order[];
+
 	@BeforeInsert()
-	addId() {
-		this.id = uuid();
-	}
-	lowercase() {
-		this.email = this.email.toLowerCase();
-		this.username = this.username.toLowerCase();
+	genId() {
+		this.id = this.genUuid();
 	}
 }
+
+export { User };

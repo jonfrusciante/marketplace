@@ -11,6 +11,7 @@ import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import * as mysqlStore from 'express-mysql-session';
 import * as passport from 'passport';
+import { getRepository, createConnection } from 'typeorm';
 
 import {
 	UserController,
@@ -18,9 +19,10 @@ import {
 	LoginController,
 	LogoutController,
 	TokenController,
+	ProductController,
 } from './controllers';
-import { getRepository } from 'typeorm';
-import { User } from './models/User';
+
+import { User } from './models';
 
 class Server {
 	public app: express.Application;
@@ -28,6 +30,7 @@ class Server {
 	constructor() {
 		dotenv.config();
 		this.app = express();
+		this.dbInit();
 		this.config();
 		this.routes();
 	}
@@ -56,6 +59,14 @@ class Server {
 					database: process.env.DB_DATABASE,
 					expiration: Number(process.env.SESSION_EXPIRE),
 					createDatabaseTable: true,
+					schema: {
+						tableName: 'session',
+						columnNames: {
+							session_id: 'session_id',
+							expires: 'expires',
+							data: 'data'
+						}
+					}
 				}),
 				cookie: {
 					path: '/',
@@ -73,15 +84,45 @@ class Server {
 		this.app.use(passport.session());
 	}
 
+	public async dbInit() {
+		const host = process.env.DB_HOST;
+		const database = process.env.DB_DATABASE;
+		const password = process.env.DB_PASSWORD;
+		const username = process.env.DB_USER;
+		const port = Number(process.env.DB_PORT);
+		const connection = await createConnection({
+			type: 'mysql',
+			port,
+			host,
+			username,
+			password,
+			database,
+			synchronize: true,
+			logging: true,
+			entities: ['build/models/**/*.js'],
+			migrations: ['build/migrations/**/*.js'],
+			subscribers: ['build/subscribers/**/*.js'],
+			cli: {
+				entitiesDir: 'build/models',
+				migrationsDir: 'build/migrations',
+				subscribersDir: 'build/subscribers',
+			},
+		});
+		await connection.close();
+		// await connection.runMigrations();
+		await connection.connect();
+	}
+
 	public async routes() {
 		const router: express.Router = express.Router();
 
 		this.app.use('/', router);
-		this.app.use('/api/v1/users', UserController);
+		this.app.use('/api/v1/user', UserController);
 		this.app.use('/api/v1/register', RegisterController);
 		this.app.use('/api/v1/login', LoginController);
 		this.app.use('/api/v1/logout', LogoutController);
 		this.app.use('/api/v1/token', TokenController);
+		this.app.use('/api/v1/product', ProductController);
 		passport.serializeUser((user, done) => {
 			done(null, user);
 		});
@@ -95,6 +136,9 @@ class Server {
 						'lastName',
 						'username',
 						'email',
+						'gender',
+						'DOB',
+						'role'
 					],
 				});
 
@@ -118,7 +162,7 @@ class Server {
 					message: '404 - Page not found.',
 				});
 
-				next();
+				return next();
 			}
 		);
 	}

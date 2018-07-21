@@ -1,5 +1,6 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
+import { requireLogin } from '../../lib/middleware/requireLogin';
 
 class LogoutController extends Controller {
 	router: Router;
@@ -12,12 +13,17 @@ class LogoutController extends Controller {
 	}
 
 	routes() {
-		this.router.post('/', this.logoutUser);
+		this.router.post('/', requireLogin, this.logoutUser);
 	}
 
 	private logoutUser = async (req: Request, res: Response): Promise<void> => {
 		try {
-			console.log(res, req);
+			req.logout();
+			await req.session!.destroy(() => {
+				res.clearCookie('connect.sid');
+			});
+
+			res.status(200).json({ success: true, message: 'You\'ve been logged out.' })
 
 			return;
 		} catch (error) {

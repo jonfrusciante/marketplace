@@ -4,16 +4,21 @@
 	"private": true,
 	"proxy": {
 		"/api/*": {
-			"target": "http://localhost:5000"
+			"target": "http://localhost:4500"
 		}
 	},
 	"dependencies": {
+		"antd": "^3.7.0",
+		"axios": "^0.18.0",
+		"formik": "^1.0.1",
 		"react": "^16.4.1",
 		"react-dom": "^16.4.1",
 		"react-redux": "^5.0.7",
+		"react-router-dom": "^4.3.1",
 		"react-scripts-ts": "2.16.0",
 		"redux": "^4.0.0",
-		"redux-thunk": "^2.3.0"
+		"redux-thunk": "^2.3.0",
+		"styled-components": "^3.3.3"
 	},
 	"scripts": {
 		"start": "react-scripts-ts start",
@@ -22,10 +27,14 @@
 		"eject": "react-scripts-ts eject"
 	},
 	"devDependencies": {
+		"@types/es6-promise": "^3.3.0",
 		"@types/jest": "^23.1.4",
 		"@types/node": "^10.5.2",
 		"@types/react": "^16.4.6",
 		"@types/react-dom": "^16.0.6",
+		"@types/react-router": "^4.0.28",
+		"@types/react-router-dom": "^4.2.7",
+		"@types/redux": "^3.6.0",
 		"jest": "^23.3.0",
 		"typescript": "^2.9.2"
 	}
