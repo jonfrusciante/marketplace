@@ -1,14 +1,20 @@
 import * as React from 'react';
 
 import MainLayout from '../../components/layouts/MainLayout';
-import { Button } from '../../components/common';
+
+import { View } from './view';
 
 class Home extends React.Component<any, any> {
 	render() {
+		const data = [
+			{ title: 'Slide 1', image: 'https://source.unsplash.com/random' },
+			{ title: 'Slide 2', image: 'https://source.unsplash.com/random' },
+			{ title: 'Slide 3', image: 'https://source.unsplash.com/random' },
+			{ title: 'Slide 4', image: 'https://source.unsplash.com/random' },
+		];
 		return (
 			<MainLayout>
-				<h1>Hello World</h1>
-				<Button>Hello</Button>
+				<View data={data} />
 			</MainLayout>
 		);
 	}

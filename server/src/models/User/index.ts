@@ -10,42 +10,26 @@ import {
 	VersionColumn,
 } from 'typeorm';
 
-import { Model, UserCart, Order } from '..';
+import { Model, Cart, Order } from '..';
 
 enum Role {
 	'Admin',
 	'Vendor',
-	'Customer'
+	'Customer',
 }
 
-enum Gender {
-	'Male',
-	'Female',
-}
 @Entity('user')
 class User extends Model {
 	@PrimaryColumn('uuid') id: string;
 
-	@Column('varchar', { length: 255, unique: true, nullable: false })
-	username: string;
+	@Column('varchar', { length: 255, nullable: false })
+	name: string;
 
 	@Column('varchar', { length: 255, unique: true, nullable: false })
 	email: string;
 
 	@Column('varchar', { length: 255, nullable: false })
 	password: string;
-
-	@Column('varchar', { length: 255, nullable: false })
-	firstName: string;
-
-	@Column('varchar', { length: 255, nullable: false })
-	lastName: string;
-
-	@Column('date', { nullable: false })
-	DOB: Date;
-
-	@Column('enum', { enum: ['Male', 'Female'], nullable: false })
-	gender: Gender;
 
 	@Column('enum', {
 		enum: ['Admin', 'Vendor', 'Customer'],
@@ -66,12 +50,12 @@ class User extends Model {
 	@VersionColumn({ default: 1 })
 	version: number;
 
-	@OneToOne(() => UserCart, userCart => userCart.userId, {
+	@OneToOne(() => Cart, cart => cart.userId, {
 		cascade: true,
 		onDelete: 'CASCADE',
 		onUpdate: 'CASCADE',
 	})
-	userCart: UserCart;
+	cart: Cart;
 
 	@OneToMany(() => Order, order => order.id, {
 		cascade: true,

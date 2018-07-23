@@ -43,7 +43,7 @@ class Server {
 		this.app.use(compression());
 		this.app.use(logger('dev'));
 		this.app.use(helmet());
-		this.app.use(cors());
+		this.app.use(cors({credentials: true, origin: `${process.env.CLIENT_URL}`}));
 		this.app.use(cookieParser());
 		// this.app.use(csrf());
 		this.app.use(
@@ -70,13 +70,14 @@ class Server {
 				}),
 				cookie: {
 					path: '/',
-					httpOnly: true,
+					httpOnly: false,
+					secure: false,
 					expires: new Date(
 						Date.now() + Number(process.env.SESSION_EXPIRE)
 					),
 					maxAge: Number(process.env.SESSION_EXPIRE),
-					// domain: `${process.env.CLIENT_URL}`,
-					secure: process.env.NODE_ENV === 'production',
+					domain: `${process.env.CLIENT_URL}`,
+					sameSite: true,
 				},
 			})
 		);

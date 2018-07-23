@@ -16,8 +16,8 @@
 #main-search-form select {
 	height: 45px;
 	padding: 5px 10px;
-	border-top-left-radius: 20px;
-	border-bottom-left-radius: 20px;
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
 	border-color: rgba(0, 0, 0, 0.1);
 	color: #929599;
 	flex: 2;
@@ -44,8 +44,8 @@
 #main-search-form button {
 	height: 45px;
 	padding: 5px 10px;
-	border-top-right-radius: 20px;
-	border-bottom-right-radius: 20px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
 	border-left: none;
 	border-color: rgba(0, 0, 0, 0.1);
 	background: none;

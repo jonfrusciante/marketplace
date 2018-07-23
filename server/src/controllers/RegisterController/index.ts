@@ -24,9 +24,9 @@ class RegisterController extends Controller {
 		res: Response
 	): Promise<void> => {
 		try {
-			const data = new User;
+			const data = new User();
 			for (const key in req.body) {
-				if (req.body[key] !== '') {
+				if (/\S/.test(req.body[key])) {
 					data[key] = escapeString(req.body[key]);
 				} else {
 					res.send(400).json({
@@ -39,16 +39,6 @@ class RegisterController extends Controller {
 			}
 
 			const userEmailExist = await this.getUserByEmail(data.email);
-			const userUsernameExist = await this.getUserByUsername(data.username);
-
-			if (userUsernameExist !== null) {
-				res.status(400).json({
-					success: false,
-					message: 'User with this username already exists.',
-				});
-
-				return;
-			}
 
 			if (userEmailExist !== null) {
 				res.status(400).json({
@@ -59,7 +49,8 @@ class RegisterController extends Controller {
 				return;
 			}
 
-			data.password = await hashPassword(new Buffer(data.password)) || '';
+			data.password =
+				(await hashPassword(new Buffer(data.password))) || '';
 			if (data.password === null || data.password === '') {
 				res.status(500).json({
 					success: false,
@@ -86,12 +77,8 @@ class RegisterController extends Controller {
 
 			const response = {
 				id: user.id,
-				firstName: user.firstName,
-				lastName: user.lastName,
-				username: user.username,
+				firstName: user.name,
 				email: user.email,
-				gender: user.gender,
-				dob: user.DOB,
 			};
 
 			req.login(response.id, error => {
@@ -120,7 +107,7 @@ class RegisterController extends Controller {
 
 			return;
 		}
-	}
+	};
 }
 
 const registerController = new RegisterController();
