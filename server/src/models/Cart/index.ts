@@ -13,8 +13,8 @@ import {
 
 import { User } from '..';
 
-@Entity('userCart')
-class UserCart extends BaseEntity {
+@Entity('cart')
+class Cart extends BaseEntity {
 	@PrimaryColumn('uuid') id: string;
 
 	@Column('varchar', { length: 255, nullable: false, unique: true })
@@ -41,9 +41,9 @@ class UserCart extends BaseEntity {
 	user: User;
 
 	@BeforeInsert()
-	addId() {
+	genId() {
 		this.id = uuid();
 	}
 }
 
-export { UserCart };
+export { Cart };

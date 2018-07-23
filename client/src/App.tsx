@@ -5,7 +5,7 @@ import { Home, Login, Register } from './containers';
 import './App.css';
 
 class App extends React.Component<any, any> {
-	public render() {
+	render() {
 		return (
 			<BrowserRouter>
 				<Switch>

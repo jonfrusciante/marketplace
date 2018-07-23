@@ -1,7 +1,10 @@
 .header {
 	display: flex;
+	-ms-flex-align: center;
 	align-items: center;
 	width: 100%;
+	max-width: 1600px;
+	margin: 0 auto;
 }
 
 .header .left {

@@ -1,4 +1,8 @@
-@import '~antd/dist/antd.css';
+@import '~normalize.css/normalize.css';
+@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
+@import '~@blueprintjs/core/lib/css/blueprint.css';
+@import '~slick-carousel/slick/slick.css';
+@import '~slick-carousel/slick/slick-theme.css';
 
 html,
 body {
@@ -6,18 +10,72 @@ body {
 	color: #212121;
 }
 
+img {
+	width: 100%;
+}
+
 a {
-	color: #212121 !important;
+	color: #106ba3 !important;
 }
 
 a:hover {
-	color: #8a8c91 !important;
+	color: #0000ee !important;
 	text-decoration: none !important;
-	transition: 100ms ease all;
+	transition: 250ms ease all;
+}
+
+.shadow {
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+.divider {
+	height: 44px;
+	margin-bottom: -18px;
+	background: -webkit-linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.14),
+		rgba(0, 0, 0, 0.03) 3px,
+		transparent
+	);
+	background: linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.14),
+		rgba(0, 0, 0, 0.03) 3px,
+		transparent
+	);
+	z-index: 0;
+	zoom: 1;
+}
+
+.divider::after {
+	display: block;
+	width: 100%;
+	height: 44px;
+	background-color: transparent;
+	background: -webkit-linear-gradient(
+		to right,
+		#fff,
+		rgba(255, 255, 255, 0),
+		#fff
+	);
+	background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0), #fff);
+	z-index: 1;
+	content: '';
+}
+
+.slick-slider {
+	width: 1600px;
+	height: 500px;
+}
+
+.slick-slider .slick-slide,
+.slick-slider .slick-slide div,
+.slick-slider .slick-slide img {
+	width: 100%;
+	min-height: 500px;
 }
 
 .App {
-	/*background-color: #f7f9fb;*/
 	font-size: 14px;
 }
 
@@ -42,7 +100,7 @@ a:hover {
 
 .App .card {
 	border-color: transparent;
-	box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
 }
 
 .App .card.fat {
