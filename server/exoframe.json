@@ -1,5 +1,0 @@
-{
-  "name": "ecommerce-server",
-  "restart": "on-failure:2",
-  "domain": "api.duranhumes.com"
-}
