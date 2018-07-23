@@ -9,21 +9,16 @@ services:
       MYSQL_USER: ecommerce
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
-  redis:
-    image: redis
-    networks:
-      - webnet
   web:
     image: ecommerce-server
     ports:
-      - '8081:8081'
+      - '4500:4500'
     depends_on:
       - db
     networks:
       - webnet
     environment:
       DB_HOST: db
-      REDIS_HOST: redis
     command:
       - ./wait-for-it.sh
       - 'db:5432'
