@@ -8,7 +8,7 @@ import Server from './server';
 dotenv.config();
 debug('ts-express:server');
 
-const port = normalizePort(process.env.PORT || 4500);
+const port = normalizePort(process.env.PORT || 8080);
 
 Server.set('port', port);
 console.log(process.env.PORT);
