@@ -70,9 +70,9 @@ class Server {
 						columnNames: {
 							session_id: 'session_id',
 							expires: 'expires',
-							data: 'data'
-						}
-					}
+							data: 'data',
+						},
+					},
 				}),
 				cookie: {
 					path: '/',
@@ -137,16 +137,7 @@ class Server {
 		passport.deserializeUser(async (id, done) => {
 			try {
 				const user = await getRepository(User).findOne(id, {
-					select: [
-						'id',
-						'firstName',
-						'lastName',
-						'username',
-						'email',
-						'gender',
-						'DOB',
-						'role'
-					],
+					select: ['id', 'name', 'email', 'role'],
 				});
 
 				done(null, user);
