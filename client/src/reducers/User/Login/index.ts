@@ -27,9 +27,6 @@ export const UserLoginReducer = (
 			return payload;
 		case USER_LOGIN_SUCCESS:
 			const { id, email, name } = payload;
-			console.log(id);
-			console.log(email);
-			console.log(name);
 			const response: LoginResponse = { id, email, name };
 			return response;
 		case USER_LOGIN_FAILURE:

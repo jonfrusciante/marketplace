@@ -1,25 +1,24 @@
-import axios from 'axios';
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import MainLayout from '../../components/layouts/MainLayout';
-import * as constants from '../../constants';
+import * as RegisterActions from '../../actions/User/Register';
 import { View } from './view';
 
-interface Register {
-	baseUrl: string;
-}
+// interface Register {}
 
 interface State {
-	name: string;
-	email: string;
-	confirmPassword: string;
-	password: string;
-	_csrf: string;
-	error?: string;
-	disabled: boolean;
+	readonly name: string;
+	readonly email: string;
+	readonly confirmPassword: string;
+	readonly password: string;
+	readonly _csrf: string;
+	readonly error?: string;
+	readonly disabled: boolean;
 }
 
-class Register extends React.Component<any, any> {
+class Container extends React.Component<any, any> {
 	public state: State = {
 		name: '',
 		email: '',
@@ -32,16 +31,14 @@ class Register extends React.Component<any, any> {
 
 	constructor(props: any) {
 		super(props);
-
-		this.baseUrl = `${constants.BACKEND_API_URL}/register`;
 	}
 
-	public updateState = (event: React.FormEvent<HTMLInputElement>): void => {
+	updateState = (event: React.FormEvent<HTMLInputElement>): void => {
 		const { name, value }: any = event.currentTarget;
 		this.setState({ [name]: value });
 	};
 
-	public handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+	handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		const { name, email, confirmPassword, password } = this.state;
@@ -53,42 +50,11 @@ class Register extends React.Component<any, any> {
 		}
 
 		this.setState({ disabled: true });
-
-		try {
-			await axios({
-				url: this.baseUrl,
-				method: 'POST',
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				data: {
-					name,
-					email,
-					password,
-				},
-			});
-
-			this.setState({
-				name: '',
-				email: '',
-				password: '',
-				confirmPassword: '',
-				error: '',
-			});
-
-			window.location.replace('/');
-
-			return;
-		} catch (error) {
-			console.log(error);
-			this.setState({ disabled: false, error: error.message });
-
-			return;
-		}
+		this.props.userRegister({ name, email, password });
 	};
 
-	public render() {
+	render() {
+		console.log(this.props);
 		return (
 			<MainLayout>
 				<View
@@ -101,5 +67,23 @@ class Register extends React.Component<any, any> {
 		);
 	}
 }
+
+const mapStateToProps = ({ user }: any): any => {
+	return { user };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+	return bindActionCreators(
+		{
+			...RegisterActions,
+		},
+		dispatch
+	);
+};
+
+const Register = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(Container);
 
 export { Register };

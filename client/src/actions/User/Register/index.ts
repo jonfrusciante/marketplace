@@ -5,6 +5,7 @@ import { USER_REGISTER_SUCCESS, USER_REGISTER_FAILURE } from '../../types';
 const registerUrl = `${constants.BACKEND_API_URL}/register`;
 
 export interface UserRegister {
+	name: string;
 	email: string;
 	password: string;
 }
@@ -39,6 +40,7 @@ const registerFailure = (error: object): RegisterActionResponse => {
 };
 
 export const userRegister = ({
+	name: userName,
 	email: userEmail,
 	password: userPassword,
 }: UserRegister): any => {
@@ -52,13 +54,14 @@ export const userRegister = ({
 					'Content-Type': 'application/json',
 				},
 				data: {
+					name: userName,
 					email: userEmail,
 					password: userPassword,
 				},
 			});
 			const { id, name, email } = response.data.response;
-			const registeredInUser = { id, name, email };
-			localStorage.setItem('user', JSON.stringify(registeredInUser));
+			const registeredUser = { id, name, email };
+			localStorage.setItem('user', JSON.stringify(registeredUser));
 
 			return dispatch(registerSuccess(response.data));
 		} catch (error) {
