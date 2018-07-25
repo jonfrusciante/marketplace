@@ -43,7 +43,13 @@ class Server {
 		this.app.use(compression());
 		this.app.use(logger('dev'));
 		this.app.use(helmet());
-		this.app.use(cors({credentials: true, origin: `${process.env.CLIENT_URL}`}));
+		this.app.use(
+			cors({
+				credentials: true,
+				origin: `${process.env.CLIENT_URL}`,
+				exposedHeaders: ['Content-Type', 'Authorization'],
+			})
+		);
 		this.app.use(cookieParser());
 		// this.app.use(csrf());
 		this.app.use(
