@@ -1,24 +1,23 @@
-import axios from 'axios';
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import MainLayout from '../../components/layouts/MainLayout';
-import * as constants from '../../constants';
 import { View } from './view';
+import * as LoginActions from '../../actions/User/Login';
+import MainLayout from '../../components/layouts/MainLayout';
 
-interface Login {
-	baseUrl: string;
-}
+// interface Container {}
 
 interface State {
-	email: string;
-	password: string;
-	_csrf: string;
-	error?: string;
-	disabled: boolean;
+	readonly email: string;
+	readonly password: string;
+	readonly _csrf: string;
+	readonly error?: string;
+	readonly disabled: boolean;
 }
 
-class Login extends React.Component<any, any> {
-	public state: State = {
+class Container extends React.Component<any, any> {
+	state: State = {
 		email: '',
 		password: '',
 		_csrf: '',
@@ -28,52 +27,28 @@ class Login extends React.Component<any, any> {
 
 	constructor(props: any) {
 		super(props);
-
-		this.baseUrl = `${constants.BACKEND_API_URL}/login`;
 	}
 
-	public updateState = (event: React.FormEvent<HTMLInputElement>): void => {
+	updateState = (event: React.FormEvent<HTMLInputElement>): void => {
 		const { name, value }: any = event.currentTarget;
 		this.setState({ [name]: value });
 	};
 
-	public handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+	handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		this.setState({ disabled: true });
 		const { email, password } = this.state;
-
-		try {
-			await axios({
-				url: this.baseUrl,
-				method: 'POST',
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				data: {
-					email,
-					password,
-				},
-			});
-
-			window.location.replace('/');
-
-			return;
-		} catch (error) {
-			console.log(error);
-			this.setState({ disabled: false, error: error.message });
-
-			return;
-		}
+		this.props.userLogin({ email, password });
 	};
 
-	public render() {
+	render() {
+		console.log(this.props);
 		return (
 			<MainLayout>
 				<View
 					onChange={this.updateState}
-					onSubmit={this.handleSubmit}
+					onSubmit={this.handleLogin}
 					errors={this.state.error}
 					disabled={this.state.disabled}
 				/>
@@ -81,5 +56,23 @@ class Login extends React.Component<any, any> {
 		);
 	}
 }
+
+const mapStateToProps = ({ user }: any): any => {
+	return { user };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+	return bindActionCreators(
+		{
+			...LoginActions,
+		},
+		dispatch
+	);
+};
+
+const Login = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(Container);
 
 export { Login };
