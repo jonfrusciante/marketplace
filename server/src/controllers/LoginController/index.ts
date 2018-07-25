@@ -19,15 +19,12 @@ class LoginController extends Controller {
 
 	private login = async (req: Request, res: Response): Promise<Response> => {
 		try {
-			console.log('Body: ', req.body);
 			const data = { email: '', password: '' };
 			for (const key in req.body) {
 				if (/\S/.test(req.body[key])) {
 					data[key] = this.escapeString(req.body[key]);
 				}
 			}
-
-			console.log('Data: ', data);
 
 			const user = await this.getUserByEmail(data.email);
 
@@ -49,25 +46,22 @@ class LoginController extends Controller {
 				});
 			}
 
-			const response = {
-				id: user.id,
-				firstName: user.firstName,
-				lastName: user.lastName,
-				username: user.username,
-				email: user.email,
-				gender: user.gender,
-				dob: user.DOB,
-			};
-
-			req.login(response.id, () => {
+			req.login(user.id, () => {
 				// return res.status(500).json({
 				// 	success: false,
 				// 	message: 'Something went wrong, please try again.',
 				// });
-				console.log('hello');
 			});
-			console.log(req.sessionID);
+
+			const response = {
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				SID: req.sessionID,
+			};
+
 			res.set('X-USER-TOKEN', req.sessionID);
+
 			return res.status(200).json({ success: true, response });
 		} catch (error) {
 			console.log(error);

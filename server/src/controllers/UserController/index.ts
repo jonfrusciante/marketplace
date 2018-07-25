@@ -17,25 +17,17 @@ class UserController extends Controller {
 
 	routes() {
 		this.router.get('/', this.getUsers);
-		this.router.get('/:username', this.getUser);
-		this.router.put('/:username', requireLogin, this.updateUser);
-		this.router.delete('/:username', requireLogin, this.deleteUser);
+		this.router.get('/:id', this.getUser);
+		this.router.put('/:id', requireLogin, this.updateUser);
+		this.router.delete('/:id', requireLogin, this.deleteUser);
 	}
 
 	public getUser = async (req: Request, res: Response): Promise<void> => {
 		try {
-			const username = this.escapeString(req.params.username);
+			const id = this.escapeString(req.params.id);
 			const response = await getRepository(User).findOne({
-				select: [
-					'id',
-					'firstName',
-					'lastName',
-					'username',
-					'email',
-					'DOB',
-					'gender',
-				],
-				where: { username },
+				select: ['id', 'name', 'email'],
+				where: { id },
 			});
 
 			res.status(200).json({ success: true, response });
@@ -56,17 +48,9 @@ class UserController extends Controller {
 	public getUsers = async (_: Request, res: Response): Promise<void> => {
 		try {
 			const response = await getRepository(User).find({
-				select: [
-					'id',
-					'firstName',
-					'lastName',
-					'username',
-					'email',
-					'DOB',
-					'gender',
-				],
+				select: ['id', 'name', 'email'],
 				order: {
-					username: 'DESC',
+					name: 'DESC',
 				},
 			});
 
@@ -83,13 +67,13 @@ class UserController extends Controller {
 
 			return;
 		}
-	}
+	};
 
 	public updateUser = async (req: Request, res: Response): Promise<void> => {
-		const username: string = req.params.username;
+		const id: string = req.params.id;
 		try {
 			// Check if user can perform this action
-			if (!req.user || req.user.username !== username) {
+			if (!req.user || req.user.id !== id) {
 				res.status(403).json({
 					success: false,
 					message: 'You cannot perform this action.',
@@ -103,16 +87,15 @@ class UserController extends Controller {
 				if (/\S/.test(req.body[key])) {
 					data[key] = this.escapeString(req.body[key]);
 					if (key === 'email') {
-						data[key] = this.escapeString(req.body[key]).toLowerCase();
-					}
-					if (key === 'username') {
-						data[key] = this.escapeString(req.body[key]).toLowerCase().replace(/\s/g, '');
+						data[key] = this.escapeString(
+							req.body[key]
+						).toLowerCase();
 					}
 				}
 			}
 
 			try {
-				await getRepository(User).update({ username }, data);
+				await getRepository(User).update({ id }, data);
 			} catch (error) {
 				res.status(500).json({
 					success: false,
@@ -124,7 +107,10 @@ class UserController extends Controller {
 				return;
 			}
 
-			res.status(200).json({ success: true, message: 'User updated sucessfully.' });
+			res.status(200).json({
+				success: true,
+				message: 'User updated sucessfully.',
+			});
 
 			return;
 		} catch (error) {
@@ -140,9 +126,9 @@ class UserController extends Controller {
 	};
 
 	public deleteUser = async (req: Request, res: Response): Promise<void> => {
-		const username: string = req.params.username;
+		const id: string = req.params.id;
 		try {
-			await getRepository(User).delete({ username });
+			await getRepository(User).delete({ id });
 
 			res.status(200).json({
 				success: true,
@@ -160,7 +146,7 @@ class UserController extends Controller {
 
 			return;
 		}
-	}
+	};
 }
 
 const userController = new UserController();

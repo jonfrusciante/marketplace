@@ -77,7 +77,7 @@ class RegisterController extends Controller {
 
 			const response = {
 				id: user.id,
-				firstName: user.name,
+				nam: user.name,
 				email: user.email,
 			};
 
