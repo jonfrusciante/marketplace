@@ -33,25 +33,7 @@ class Controller {
 
 			return null;
 		}
-	}
-
-	public getUserByUsername = async (username: string): Promise<User | null> => {
-		try {
-			const user = await getRepository(User).findOne({
-				where: { username },
-			});
-
-			if (typeof user === 'undefined') {
-				return null;
-			}
-
-			return user;
-		} catch (error) {
-			console.error(error);
-
-			return null;
-		}
-	}
+	};
 }
 
 export { Controller };
