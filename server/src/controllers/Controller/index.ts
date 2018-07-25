@@ -8,12 +8,14 @@ class Controller {
 	}
 
 	public formatSlug = (slug: string): string => {
-		return this.escapeString(slug).replace(/\s+/g, '-').toLowerCase();
-	}
+		return this.escapeString(slug)
+			.replace(/\s+/g, '-')
+			.toLowerCase();
+	};
 
 	public escapeString = (str: string): string => {
 		return escape(String(str));
-	}
+	};
 
 	public getUserByEmail = async (email: string): Promise<User | null> => {
 		try {
