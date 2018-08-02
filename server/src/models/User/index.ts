@@ -19,7 +19,7 @@ enum Role {
 }
 
 @Entity('user')
-class User extends Model {
+export default class User extends Model {
 	@PrimaryColumn('uuid') id: string;
 
 	@Column('varchar', { length: 255, nullable: false })
@@ -69,5 +69,3 @@ class User extends Model {
 		this.id = this.genUuid();
 	}
 }
-
-export { User };

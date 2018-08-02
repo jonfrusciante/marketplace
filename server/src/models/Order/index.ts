@@ -21,7 +21,7 @@ enum Status {
 }
 
 @Entity('order')
-class Order extends BaseEntity {
+export default class Order extends BaseEntity {
 	@PrimaryColumn('uuid') id: string;
 
 	@Column('varchar', { length: 255, nullable: false })
@@ -72,5 +72,3 @@ class Order extends BaseEntity {
 		this.id = uuid();
 	}
 }
-
-export { Order };

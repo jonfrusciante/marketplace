@@ -14,7 +14,7 @@ import {
 import { User } from '..';
 
 @Entity('cart')
-class Cart extends BaseEntity {
+export default class Cart extends BaseEntity {
 	@PrimaryColumn('uuid') id: string;
 
 	@Column('varchar', { length: 255, nullable: false, unique: true })
@@ -45,5 +45,3 @@ class Cart extends BaseEntity {
 		this.id = uuid();
 	}
 }
-
-export { Cart };

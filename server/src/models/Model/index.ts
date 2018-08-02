@@ -1,9 +1,7 @@
-import * as uuid from 'uuid/v4'
-import {
-	BaseEntity,
-} from 'typeorm';
+import * as uuid from 'uuid/v4';
+import { BaseEntity } from 'typeorm';
 
-class Model extends BaseEntity {
+export default class Model extends BaseEntity {
 	public lowercase(str: string): string {
 		return str.toLowerCase();
 	}
@@ -12,5 +10,3 @@ class Model extends BaseEntity {
 		return uuid();
 	}
 }
-
-export { Model };

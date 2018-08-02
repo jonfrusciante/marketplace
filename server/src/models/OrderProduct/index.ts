@@ -14,7 +14,7 @@ import {
 import { ProductSku, Order } from '..';
 
 @Entity('orderProduct')
-class OrderProduct extends BaseEntity {
+export default class OrderProduct extends BaseEntity {
 	@PrimaryColumn('uuid') id: string;
 
 	@Column('varchar', { length: 255, nullable: false })
@@ -70,5 +70,3 @@ class OrderProduct extends BaseEntity {
 		this.id = uuid();
 	}
 }
-
-export { OrderProduct };

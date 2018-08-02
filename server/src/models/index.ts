@@ -1,9 +1,9 @@
-export { Model } from './Model'
-export { Order } from './Order';
-export { OrderProduct } from './OrderProduct';
-export { Product } from './Product';
-export { ProductSku } from './ProductSku';
-export { User } from './User';
-export { Cart } from './Cart';
-export { Category } from './Category';
-export { CategoryProduct } from './CategoryProduct';
+export { default as Model } from './Model';
+export { default as Order } from './Order';
+export { default as OrderProduct } from './OrderProduct';
+export { default as Product } from './Product';
+export { default as ProductSku } from './ProductSku';
+export { default as User } from './User';
+export { default as Cart } from './Cart';
+export { default as Category } from './Category';
+export { default as CategoryProduct } from './CategoryProduct';
