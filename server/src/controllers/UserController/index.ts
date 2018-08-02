@@ -4,6 +4,7 @@ import { getRepository } from 'typeorm';
 
 import { User } from '../../models';
 import requireLogin from '../../lib/middleware/requireLogin';
+import * as messages from '../../lib/helpers/messages';
 
 class UserController extends Controller {
 	router: Router;
@@ -72,10 +73,7 @@ class UserController extends Controller {
 		try {
 			// Check if user can perform this action
 			if (!req.user || req.user.id !== id) {
-				res.status(403).json({
-					response: {},
-					message: 'You cannot perform this action.',
-				});
+				res.status(403).json(messages.error403);
 
 				return;
 			}
@@ -101,10 +99,7 @@ class UserController extends Controller {
 				});
 			} catch (error) {
 				console.log(error);
-				res.status(500).json({
-					response: {},
-					message: 'Something went wrong, please try again.',
-				});
+				res.status(500).json(messages.error500);
 
 				return;
 			}
@@ -112,10 +107,7 @@ class UserController extends Controller {
 			return;
 		} catch (error) {
 			console.log(error);
-			res.status(401).json({
-				response: {},
-				message: 'You are not allowed to perform this action',
-			});
+			res.status(403).json(messages.error403);
 
 			return;
 		}
@@ -134,10 +126,7 @@ class UserController extends Controller {
 			return;
 		} catch (error) {
 			console.log(error);
-			res.status(401).json({
-				response: {},
-				message: 'You are not allowed to perform this action',
-			});
+			res.status(403).json(messages.error403);
 
 			return;
 		}

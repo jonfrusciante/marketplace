@@ -5,6 +5,7 @@ import { body, validationResult } from 'express-validator/check';
 import { verifyPassword } from '../../lib/auth/password';
 import { sign } from '../../lib/auth/userToken';
 import { getUserByEmail } from '../../models/User/helpers';
+import * as messages from '../../lib/helpers/messages';
 
 const validation = [
 	body('email')
@@ -71,10 +72,7 @@ class LoginController extends Controller {
 			let token;
 			req.login(user.id, (error: any) => {
 				if (error) {
-					res.status(500).json({
-						response: {},
-						message: 'Something went wrong, please try again.',
-					});
+					res.status(500).json(messages.error500);
 
 					return;
 				}
@@ -96,10 +94,7 @@ class LoginController extends Controller {
 			return;
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({
-				response: {},
-				message: 'Something went wrong, please try again.',
-			});
+			res.status(500).json(messages.error500);
 
 			return;
 		}

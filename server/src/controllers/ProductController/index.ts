@@ -5,6 +5,7 @@ import { getRepository } from 'typeorm';
 import { Product } from '../../models';
 import requireLogin from '../../lib/middleware/requireLogin';
 import { roles } from '../../lib/middleware/checkRole';
+import * as messages from '../../lib/helpers/messages';
 
 class ProductController extends Controller {
 	router: Router;
@@ -135,10 +136,7 @@ class ProductController extends Controller {
 			return;
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({
-				response: {},
-				message: 'Something went wrong, please try again.',
-			});
+			res.status(500).json(messages.error500);
 
 			return;
 		}
@@ -156,10 +154,7 @@ class ProductController extends Controller {
 				req.user!.role !== roles.Admin &&
 				req.user!.id !== product!.vendorId
 			) {
-				res.status(403).json({
-					response: {},
-					message: 'Access Denied.',
-				});
+				res.status(403).json(messages.error403);
 
 				return;
 			}
@@ -217,10 +212,7 @@ class ProductController extends Controller {
 					req.user!.role !== roles.Admin &&
 					req.user!.id !== product!.vendorId
 				) {
-					res.status(403).json({
-						response: {},
-						message: 'Access Denied.',
-					});
+					res.status(403).json(messages.error403);
 
 					return;
 				}
@@ -242,10 +234,7 @@ class ProductController extends Controller {
 
 			return;
 		} catch (error) {
-			res.status(500).json({
-				response: {},
-				message: 'Something went wrong, please try again.',
-			});
+			res.status(500).json(messages.error500);
 
 			return;
 		}

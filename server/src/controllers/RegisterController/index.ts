@@ -1,12 +1,11 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator/check';
-// import { sanitizeBody } from 'express-validator/filter';
 
 import { User } from '../../models';
 import { hashPassword } from '../../lib/auth/password';
-import { escapeString } from '../../lib/helpers/escapeString';
 import { getUserByEmail } from '../../models/User/helpers';
+import * as messages from '../../lib/helpers/messages';
 
 const validation = [
 	body('email')
@@ -55,15 +54,30 @@ class RegisterController extends Controller {
 			const userEmailExist = await getUserByEmail(data.email);
 
 			if (userEmailExist !== null) {
-				res.status(422).json({
-					response: {},
-					message: 'User with this email already exists.',
-				});
+				res.status(422).json(messages.error422);
+
+				return;
+			}
+			let password;
+			try {
+				if (data.password) {
+					password = await hashPassword(new Buffer(data.password));
+				}
+			} catch (error) {
+				console.log(error);
+
+				res.status(500).json(messages.error500);
 
 				return;
 			}
 
-			data.password = await hashPassword(new Buffer(data.password));
+			if (!password) {
+				res.status(500).json(messages.error500);
+
+				return;
+			}
+
+			data.password = password;
 
 			const user = User.create({ ...data });
 
@@ -71,10 +85,7 @@ class RegisterController extends Controller {
 				await user.save();
 			} catch (error) {
 				console.log(error);
-				res.status(500).json({
-					response: {},
-					message: 'Something went wrong, please try again.',
-				});
+				res.status(500).json(messages.error500);
 
 				return;
 			}
@@ -87,10 +98,7 @@ class RegisterController extends Controller {
 
 			req.login(response.id, (error: any) => {
 				if (error) {
-					res.status(500).json({
-						response: {},
-						message: 'Something went wrong, please try again.',
-					});
+					res.status(500).json(messages.error500);
 
 					return;
 				}
@@ -101,10 +109,7 @@ class RegisterController extends Controller {
 			});
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({
-				response: {},
-				message: 'Something went wrong, please try again.',
-			});
+			res.status(500).json(messages.error500);
 
 			return;
 		}
