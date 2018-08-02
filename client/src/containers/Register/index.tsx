@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import MainLayout from '../../components/layouts/MainLayout';
 import * as RegisterActions from '../../actions/User/Register';
 import { View } from './view';
+import AuthenticatedCheck from '../../hoc/AuthenticatedCheck';
 
 // interface Register {}
 
@@ -50,11 +51,12 @@ class Container extends React.Component<any, any> {
 		}
 
 		this.setState({ disabled: true });
-		this.props.userRegister({ name, email, password });
+		this.props.userRegister({ name, email, password }, () => {
+			this.props.history.push('/');
+		});
 	};
 
 	render() {
-		console.log(this.props);
 		return (
 			<MainLayout>
 				<View
@@ -68,7 +70,7 @@ class Container extends React.Component<any, any> {
 	}
 }
 
-const mapStateToProps = ({ user }: any): any => {
+const mapStateToProps = (user: any): any => {
 	return { user };
 };
 
@@ -84,6 +86,6 @@ const mapDispatchToProps = (dispatch: any) => {
 const Register = connect(
 	mapStateToProps,
 	mapDispatchToProps
-)(Container);
+)(AuthenticatedCheck(Container, false));
 
 export { Register };

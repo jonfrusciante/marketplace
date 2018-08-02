@@ -1,50 +1,78 @@
 import * as React from 'react';
-// import axios from 'axios';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import SearchBar from './searchbar';
 import Logo from './logo';
-import * as constants from '../../constants';
-
-import './styles.css';
+import { userLogout } from '../../actions/User';
+import './style/index.css';
 
 interface State {
 	query: string;
 	category: string;
 }
 
-interface Header {
+interface H {
 	baseUrl: string;
 }
 
-class Header extends React.Component<any, any> {
+class H extends React.Component<any, any> {
 	state: State = { query: '', category: '' };
 	constructor(props: any) {
 		super(props);
 
-		this.baseUrl = `${constants.BACKEND_API_URL}/search`;
+		this.baseUrl = `${process.env.REACT_APP_BACKEND_API_URL}/search`;
 	}
 
 	updateState = (event: React.FormEvent<HTMLInputElement>): void => {
 		const { name, value }: any = event.currentTarget;
 		this.setState({ [name]: value });
-		console.log(this.state);
 	};
 
-	public handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+	handleSubmit = async (
+		event: React.FormEvent<HTMLFormElement>
+	): Promise<void> => {
 		event.preventDefault();
 		const { query, category } = this.state;
 
-		try {
-			console.log('Query: ', query);
-			console.log('Category: ', category);
-			console.log('Url: ', `${this.baseUrl}?q=${query}&c=${category}`);
-			// await axios.get(`${this.baseUrl}?q=${query}&c=${category}`);
+		console.log('Query: ', query);
+		console.log('Category: ', category);
+		console.log('Url: ', `${this.baseUrl}?q=${query}&c=${category}`);
+	};
 
-			return;
-		} catch (error) {
-			console.log(error);
+	handleLogout = () => {
+		this.props.userLogout(() => {
+			window.location.replace('/');
+		});
+	};
 
-			return;
+	renderLinks = () => {
+		const { user } = this.props;
+		if (!user.token) {
+			return (
+				<React.Fragment>
+					<li>
+						<Link className="btn btn-link" to="/login">
+							Login
+						</Link>
+					</li>
+					<li>
+						<Link className="btn btn-link" to="/register">
+							Register
+						</Link>
+					</li>
+				</React.Fragment>
+			);
+		} else {
+			return (
+				<li>
+					<button
+						className="btn btn-link"
+						onClick={this.handleLogout}>
+						Logout
+					</button>
+				</li>
+			);
 		}
 	};
 
@@ -68,16 +96,7 @@ class Header extends React.Component<any, any> {
 									Orders
 								</a>
 							</li>
-							<li>
-								<a className="btn btn-link" href="/login">
-									Login
-								</a>
-							</li>
-							<li>
-								<a className="btn btn-link" href="/register">
-									Register
-								</a>
-							</li>
+							{this.renderLinks()}
 							<li>
 								<a className="btn btn-link" href="#">
 									Cart
@@ -90,5 +109,10 @@ class Header extends React.Component<any, any> {
 		);
 	}
 }
+
+const Header = connect(
+	null,
+	{ userLogout }
+)(H);
 
 export { Header };

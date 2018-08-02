@@ -1,73 +1,36 @@
-import axios from 'axios';
-import * as constants from '../../../constants';
-import { USER_REGISTER_SUCCESS, USER_REGISTER_FAILURE } from '../../types';
+import { USER_AUTH, USER_AUTH_FAILURE } from '../../types';
 
-const registerUrl = `${constants.BACKEND_API_URL}/register`;
+const registerUrl = `${process.env.REACT_APP_BACKEND_API_URL}/register`;
 
-export interface UserRegister {
-	name: string;
-	email: string;
-	password: string;
-}
+export const userRegister = (formValues: any, navigate: () => void) => async (
+	dispatch: any
+) => {
+	try {
+		const request = await fetch(registerUrl, {
+			method: 'POST',
+			mode: 'cors',
+			cache: 'no-cache',
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8',
+			},
+			body: JSON.stringify(formValues),
+		});
+		const { response } = await request.json();
 
-export interface RegisterResponse {
-	id: string;
-	name: string;
-	email: string;
-}
+		await localStorage.setItem('user', JSON.stringify(response));
 
-export interface RegisterActionResponse {
-	readonly type: string;
-	payload: object;
-}
+		dispatch({
+			type: USER_AUTH,
+			payload: response,
+		});
 
-const registerSuccess = (
-	response: RegisterResponse
-): RegisterActionResponse => {
-	console.log('User Register Action Response: ', response);
-	return {
-		type: USER_REGISTER_SUCCESS,
-		payload: response,
-	};
-};
+		navigate();
+	} catch (error) {
+		console.log('Register Error: ', error);
 
-const registerFailure = (error: object): RegisterActionResponse => {
-	console.log('User Register Action Error: ', error);
-	return {
-		type: USER_REGISTER_FAILURE,
-		payload: error,
-	};
-};
-
-export const userRegister = ({
-	name: userName,
-	email: userEmail,
-	password: userPassword,
-}: UserRegister): any => {
-	return async (dispatch: any) => {
-		try {
-			const response = await axios({
-				url: registerUrl,
-				method: 'POST',
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				data: {
-					name: userName,
-					email: userEmail,
-					password: userPassword,
-				},
-			});
-			const { id, name, email } = response.data.response;
-			const registeredUser = { id, name, email };
-			localStorage.setItem('user', JSON.stringify(registeredUser));
-
-			return dispatch(registerSuccess(response.data));
-		} catch (error) {
-			console.log('Register Error: ', error);
-
-			return dispatch(registerFailure(error));
-		}
-	};
+		return dispatch({
+			type: USER_AUTH_FAILURE,
+			payload: {},
+		});
+	}
 };

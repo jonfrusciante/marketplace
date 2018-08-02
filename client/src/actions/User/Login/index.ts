@@ -1,67 +1,36 @@
-import axios from 'axios';
-import * as constants from '../../../constants';
-import { USER_LOGIN_SUCCESS, USER_LOGIN_FAILURE } from '../../types';
+import { USER_AUTH, USER_AUTH_FAILURE } from '../../types';
 
-const loginUrl = `${constants.BACKEND_API_URL}/login`;
+const loginUrl = `${process.env.REACT_APP_BACKEND_API_URL}/login`;
 
-export interface UserLogin {
-	email: string;
-	password: string;
-}
+export const userLogin = (formValues: any, navigate: () => void) => async (
+	dispatch: any
+) => {
+	try {
+		const request = await fetch(loginUrl, {
+			method: 'POST',
+			mode: 'cors',
+			cache: 'no-cache',
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8',
+			},
+			body: JSON.stringify(formValues),
+		});
+		const { response } = await request.json();
 
-export interface LoginResponse {
-	id: string;
-	name: string;
-	email: string;
-}
+		await localStorage.setItem('user', JSON.stringify(response));
 
-const loginSuccess = (response: any): any => {
-	console.log('User Login Action Response: ', response);
-	return {
-		type: USER_LOGIN_SUCCESS,
-		payload: response,
-	};
-};
+		dispatch({
+			type: USER_AUTH,
+			payload: response,
+		});
 
-const loginFailure = (error: any): any => {
-	console.log('User Login Action Error: ', error);
-	return {
-		type: USER_LOGIN_FAILURE,
-		payload: error,
-	};
-};
+		navigate();
+	} catch (error) {
+		console.log('Login Error: ', error);
 
-export const userLogin = ({
-	email: userEmail,
-	password: userPassword,
-}: UserLogin): any => {
-	return async (dispatch: any) => {
-		try {
-			const response = await axios({
-				url: loginUrl,
-				method: 'POST',
-				withCredentials: true,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				data: {
-					email: userEmail,
-					password: userPassword,
-				},
-			});
-			const { id, name, email } = response.data.response;
-			const loggedInUser = {
-				id,
-				name,
-				email,
-			};
-			localStorage.setItem('user', JSON.stringify(loggedInUser));
-
-			return dispatch(loginSuccess(response.data));
-		} catch (error) {
-			console.log('Login Error: ', error);
-
-			return dispatch(loginFailure(error));
-		}
-	};
+		return dispatch({
+			type: USER_AUTH_FAILURE,
+			payload: {},
+		});
+	}
 };

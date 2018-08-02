@@ -1,19 +1,22 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { applyMiddleware, compose, createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import rootReducer from './reducers';
 
-const storeEnhancers = compose(applyMiddleware(thunk));
-const store = createStore(rootReducer, storeEnhancers);
+const store = createStore(rootReducer, applyMiddleware(thunk));
+let user = {};
+if (localStorage.getItem('user')) {
+	user = JSON.parse(localStorage.getItem('user') || '');
+}
 
 ReactDOM.render(
 	<Provider store={store}>
-		<App />
+		<App user={user} />
 	</Provider>,
 	document.getElementById('root') as HTMLElement
 );

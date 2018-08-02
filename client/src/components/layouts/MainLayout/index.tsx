@@ -1,20 +1,32 @@
 import * as React from 'react';
 
 import { Header } from '../../header';
+import PassUserProps from '../../../hoc/PassUserProps';
+
+import './style/index.css';
 
 class MainLayout extends React.Component<any, any> {
+	constructor(props: any) {
+		super(props);
+	}
+
 	render() {
+		const { user, children } = this.props;
+		const userInfo = { ...user };
+		const childrenWithProps = React.Children.map(children, (child: any) =>
+			React.cloneElement(child, { ...this.props })
+		);
 		return (
 			<React.Fragment>
 				<div className="container-fluid shadow">
-					<Header />
+					<Header user={userInfo} />
 				</div>
 				<div className="divider" />
 				<div className="App">
 					<section className="h-100">
 						<div className="container-fluid h-100">
-							<div className="row justify-content-md-center h-100">
-								{this.props.children}
+							<div className="row justify-content-md-center h-100 flex-column">
+								{childrenWithProps}
 							</div>
 						</div>
 					</section>
@@ -28,7 +40,7 @@ class MainLayout extends React.Component<any, any> {
 									<p className="small">
 										Copyright &copy;{' '}
 										{new Date().getFullYear()} &mdash;
-										Amazon
+										Bamazon
 									</p>
 								</div>
 							</div>
@@ -40,4 +52,4 @@ class MainLayout extends React.Component<any, any> {
 	}
 }
 
-export default MainLayout;
+export default PassUserProps(MainLayout);
