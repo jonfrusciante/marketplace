@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
 import { Product } from '../../models';
-import { requireLogin } from '../../lib/middleware/requireLogin';
+import requireLogin from '../../lib/middleware/requireLogin';
 import { roles } from '../../lib/middleware/checkRole';
 
 class ProductController extends Controller {
@@ -24,7 +24,7 @@ class ProductController extends Controller {
 		this.router.delete('/:slug', requireLogin, this.deleteProduct);
 	}
 
-	public getProduct = async (req: Request, res: Response): Promise<Response> => {
+	public getProduct = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const slug = this.escapeString(req.params.slug);
 			const sql = `SELECT p.id, p.name, p.vendorId, p.slug, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId WHERE p.slug = ?`;
@@ -35,27 +35,32 @@ class ProductController extends Controller {
 
 				const response = { ...product[0], skus };
 
-				return res.status(200).json({
-					success: true,
+				res.status(200).json({
 					response,
+					message: 'Success',
 				});
+
+				return;
 			}
 
-			return res.status(404).json({
-				success: false,
+			res.status(404).json({
+				response: {},
 				message: 'Product not found.',
 			});
+
+			return;
 		} catch (error) {
 			console.error(error);
-			return res.status(404).json({
-				success: false,
-				errors: error.message,
+			res.status(404).json({
+				response: {},
 				message: 'Product not found',
 			});
+
+			return;
 		}
 	};
 
-	public getProducts = async (_: Request, res: Response): Promise<Response> => {
+	public getProducts = async (_: Request, res: Response): Promise<void> => {
 		try {
 			const sql = `SELECT p.id, p.name, p.vendorId, p.slug, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId GROUP BY p.id`;
 			const products = await getRepository(Product).query(sql);
@@ -70,32 +75,42 @@ class ProductController extends Controller {
 					};
 				});
 
-				return res.status(200).json({
-					success: true,
+				res.status(200).json({
 					response,
+					message: 'Success',
 				});
+
+				return;
 			}
 
-			return res.status(404).json({
-				success: false,
+			res.status(404).json({
+				response: {},
 				message: 'Products not found.',
 			});
+
+			return;
 		} catch (error) {
 			console.error(error);
-			return res.status(404).json({
-				success: false,
-				errors: error.message,
+			res.status(404).json({
+				response: {},
 				message: 'Products not found',
 			});
+
+			return;
 		}
 	};
 
-	public getUserProducts = async (req: Request, res: Response): Promise<Response> => {
+	public getUserProducts = async (
+		req: Request,
+		res: Response
+	): Promise<void> => {
 		try {
 			if (req.user) {
 				const vendorId = req.params.id;
 				const sql = `SELECT p.id, p.name, p.vendorId, p.slug, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId WHERE vendorId = ? GROUP BY p.id`;
-				const products = await getRepository(Product).query(sql, [vendorId]);
+				const products = await getRepository(Product).query(sql, [
+					vendorId,
+				]);
 				if (typeof products !== 'undefined') {
 					const response = products.map((p: any) => {
 						return {
@@ -107,29 +122,46 @@ class ProductController extends Controller {
 						};
 					});
 
-					return res.status(200).json({
-						success: true,
+					res.status(200).json({
 						response,
+						message: 'Success',
 					});
+
+					return;
 				}
 			}
-			return res.status(400).json({ success: false, message: 'You must login.' });
+			res.status(400).json({ response: {}, message: 'You must login.' });
+
+			return;
 		} catch (error) {
 			console.log(error);
-			return res.status(500).json({ success: false, error: error.message, message: 'Something went wrong, please try again.' });
+			res.status(500).json({
+				response: {},
+				message: 'Something went wrong, please try again.',
+			});
+
+			return;
 		}
-	}
+	};
 
 	public updateProduct = async (
 		req: Request,
 		res: Response
-	): Promise<Response> => {
+	): Promise<void> => {
 		try {
 			const slug = this.escapeString(req.params.slug);
 			const product = await getRepository(Product).findOne({ slug });
 
-			if (req.user!.role !== roles.Admin && req.user!.id !== product!.vendorId) {
-				return res.status(403).json({ success: false, message: 'Access Denied.' });
+			if (
+				req.user!.role !== roles.Admin &&
+				req.user!.id !== product!.vendorId
+			) {
+				res.status(403).json({
+					response: {},
+					message: 'Access Denied.',
+				});
+
+				return;
 			}
 
 			if (typeof product !== 'undefined') {
@@ -147,46 +179,77 @@ class ProductController extends Controller {
 					product
 				);
 
-				return res.status(200).json({
-					success: true,
-					response
+				res.status(200).json({
+					response,
+					message: 'Success',
 				});
+
+				return;
 			}
 
-			return res.status(404).json({
-				success: false,
+			res.status(404).json({
+				response: {},
 				message: 'Product not found.',
 			});
+
+			return;
 		} catch (error) {
 			console.error(error);
-			return res.status(404).json({
-				success: false,
-				errors: error.message,
+			res.status(404).json({
+				response: {},
 				message: 'Product not found',
 			});
+
+			return;
 		}
 	};
 
-	public deleteProduct = async (req: Request, res: Response): Promise<Response> => {
+	public deleteProduct = async (
+		req: Request,
+		res: Response
+	): Promise<void> => {
 		try {
 			const slug = this.escapeString(req.params.slug);
 			const product = await getRepository(Product).findOne({ slug });
 
 			if (typeof product !== 'undefined') {
-				if (req.user!.role !== roles.Admin && req.user!.id !== product!.vendorId) {
-					return res.status(403).json({ success: false, message: 'Access Denied.' });
+				if (
+					req.user!.role !== roles.Admin &&
+					req.user!.id !== product!.vendorId
+				) {
+					res.status(403).json({
+						response: {},
+						message: 'Access Denied.',
+					});
+
+					return;
 				}
 
 				await product.remove();
 
-				return res.status(200).json({ success: true, message: 'Product sucessfully deleted.' });
+				res.status(200).json({
+					response: {},
+					message: 'Product sucessfully deleted.',
+				});
+
+				return;
 			}
 
-			return res.status(404).json({ success: false, message: 'Product not found.' });
+			res.status(404).json({
+				response: {},
+				message: 'Product not found.',
+			});
+
+			return;
 		} catch (error) {
-			return res.status(500).json({ success: false, error: error.message, message: 'Something went wrong, please try again.' });
+			res.status(500).json({
+				response: {},
+				message: 'Something went wrong, please try again.',
+			});
+
+			return;
 		}
-	}
+	};
 }
 
 const productController = new ProductController();

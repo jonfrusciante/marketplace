@@ -1,7 +1,21 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
+import { body, validationResult } from 'express-validator/check';
 
 import { verifyPassword } from '../../lib/auth/password';
+import { sign } from '../../lib/auth/userToken';
+import { getUserByEmail } from '../../models/User/helpers';
+
+const validation = [
+	body('email')
+		.isEmail()
+		.normalizeEmail(),
+	body('password')
+		.not()
+		.isEmpty()
+		.trim()
+		.escape(),
+];
 
 class LoginController extends Controller {
 	router: Router;
@@ -14,62 +28,80 @@ class LoginController extends Controller {
 	}
 
 	routes() {
-		this.router.post('/', this.login);
+		this.router.post('/', [...validation], this.login);
 	}
 
-	private login = async (req: Request, res: Response): Promise<Response> => {
+	private login = async (req: Request, res: Response): Promise<void> => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			console.log(errors.array());
+			res.status(422).json({ response: {}, message: 'Validation Error' });
+
+			return;
+		}
+
 		try {
 			const data = { email: '', password: '' };
-			for (const key in req.body) {
-				if (/\S/.test(req.body[key])) {
-					data[key] = this.escapeString(req.body[key]);
-				}
-			}
 
-			const user = await this.getUserByEmail(data.email);
+			const user = await getUserByEmail(data.email);
 
 			if (user === null) {
-				return res.status(400).json({
-					success: false,
+				res.status(400).json({
+					response: {},
 					message: 'User does not exist.',
 				});
+
+				return;
 			}
 
 			const verified = await verifyPassword(
 				String(user.password),
 				String(data.password)
 			);
+
 			if (!verified) {
-				return res.status(400).json({
-					success: false,
+				res.status(400).json({
+					response: {},
 					message: 'Password is incorrect.',
 				});
+
+				return;
 			}
 
-			req.login(user.id, () => {
-				// return res.status(500).json({
-				// 	success: false,
-				// 	message: 'Something went wrong, please try again.',
-				// });
+			let token;
+			req.login(user.id, (error: any) => {
+				if (error) {
+					res.status(500).json({
+						response: {},
+						message: 'Something went wrong, please try again.',
+					});
+
+					return;
+				}
+
+				token = sign(user);
 			});
 
 			const response = {
 				id: user.id,
 				name: user.name,
 				email: user.email,
-				SID: req.sessionID,
+				token,
 			};
 
 			res.set('X-USER-TOKEN', req.sessionID);
 
-			return res.status(200).json({ success: true, response });
+			res.status(200).json({ response, message: 'Success' });
+
+			return;
 		} catch (error) {
 			console.log(error);
-			return res.status(500).json({
-				success: false,
-				errors: error.message,
+			res.status(500).json({
+				response: {},
 				message: 'Something went wrong, please try again.',
 			});
+
+			return;
 		}
 	};
 }

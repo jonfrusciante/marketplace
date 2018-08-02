@@ -1,10 +1,28 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
+import { body, validationResult } from 'express-validator/check';
+// import { sanitizeBody } from 'express-validator/filter';
 
 import { User } from '../../models';
 import { hashPassword } from '../../lib/auth/password';
 import { escapeString } from '../../lib/helpers/escapeString';
+import { getUserByEmail } from '../../models/User/helpers';
 
+const validation = [
+	body('email')
+		.isEmail()
+		.normalizeEmail(),
+	body('name')
+		.not()
+		.isEmpty()
+		.trim()
+		.escape(),
+	body('password')
+		.not()
+		.isEmpty()
+		.trim()
+		.escape(),
+];
 class RegisterController extends Controller {
 	router: Router;
 
@@ -16,61 +34,47 @@ class RegisterController extends Controller {
 	}
 
 	routes() {
-		this.router.post('/', this.registerUser);
+		this.router.post('/', [...validation], this.registerUser);
 	}
 
 	private registerUser = async (
 		req: Request,
 		res: Response
 	): Promise<void> => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			console.log(errors.array());
+			res.status(422).json({ response: {}, message: 'Validation Error' });
+
+			return;
+		}
+
 		try {
 			const data = new User();
-			for (const key in req.body) {
-				if (/\S/.test(req.body[key])) {
-					data[key] = escapeString(req.body[key]);
-				} else {
-					res.send(400).json({
-						success: false,
-						message: 'You must fill out all fields',
-					});
 
-					return;
-				}
-			}
-
-			const userEmailExist = await this.getUserByEmail(data.email);
+			const userEmailExist = await getUserByEmail(data.email);
 
 			if (userEmailExist !== null) {
-				res.status(400).json({
-					success: false,
+				res.status(422).json({
+					response: {},
 					message: 'User with this email already exists.',
 				});
 
 				return;
 			}
 
-			data.password =
-				(await hashPassword(new Buffer(data.password))) || '';
-			if (data.password === null || data.password === '') {
-				res.status(500).json({
-					success: false,
-					message: 'Something went wrong, please try again.',
-				});
-
-				return;
-			}
+			data.password = await hashPassword(new Buffer(data.password));
 
 			const user = User.create({ ...data });
 
 			try {
 				await user.save();
 			} catch (error) {
+				console.log(error);
 				res.status(500).json({
-					success: false,
-					errors: error.message,
+					response: {},
 					message: 'Something went wrong, please try again.',
 				});
-				console.log(error);
 
 				return;
 			}
@@ -81,29 +85,26 @@ class RegisterController extends Controller {
 				email: user.email,
 			};
 
-			req.login(response.id, error => {
-				console.log('Login ID: ', response.id);
+			req.login(response.id, (error: any) => {
 				if (error) {
 					res.status(500).json({
-						success: false,
-						error: error.message,
+						response: {},
 						message: 'Something went wrong, please try again.',
 					});
 
 					return;
 				}
 
-				res.status(200).json({ success: true, response });
+				res.status(200).json({ response, message: 'Success' });
 
 				return;
 			});
 		} catch (error) {
+			console.log(error);
 			res.status(500).json({
-				success: false,
-				errors: error.message,
+				response: {},
 				message: 'Something went wrong, please try again.',
 			});
-			console.log(error);
 
 			return;
 		}

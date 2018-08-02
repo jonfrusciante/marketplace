@@ -1,6 +1,6 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
-import { requireLogin } from '../../lib/middleware/requireLogin';
+import requireLogin from '../../lib/middleware/requireLogin';
 
 class LogoutController extends Controller {
 	router: Router;
@@ -23,14 +23,16 @@ class LogoutController extends Controller {
 				res.clearCookie('connect.sid');
 			});
 
-			res.status(200).json({ success: true, message: 'You\'ve been logged out.' })
+			res.status(200).json({
+				response: {},
+				message: "You've been logged out.",
+			});
 
 			return;
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({
-				success: false,
-				errors: error.message,
+				response: {},
 				message: 'Something went wrong, please try again.',
 			});
 

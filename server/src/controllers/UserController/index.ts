@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
 import { User } from '../../models';
-import { requireLogin } from '../../lib/middleware/requireLogin';
+import requireLogin from '../../lib/middleware/requireLogin';
 
 class UserController extends Controller {
 	router: Router;
@@ -30,16 +30,15 @@ class UserController extends Controller {
 				where: { id },
 			});
 
-			res.status(200).json({ success: true, response });
+			res.status(200).json({ response, message: 'Success' });
 
 			return;
 		} catch (error) {
+			console.log(error);
 			res.status(404).json({
-				success: false,
-				errors: error.message,
+				response: {},
 				message: 'User not found',
 			});
-			console.error(error);
 
 			return;
 		}
@@ -54,16 +53,15 @@ class UserController extends Controller {
 				},
 			});
 
-			res.status(200).json({ success: true, response });
+			res.status(200).json({ response, message: 'Success' });
 
 			return;
 		} catch (error) {
+			console.log(error);
 			res.status(404).json({
-				success: false,
-				errors: error.message,
+				response: {},
 				message: 'Users not found',
 			});
-			console.error(error);
 
 			return;
 		}
@@ -75,7 +73,7 @@ class UserController extends Controller {
 			// Check if user can perform this action
 			if (!req.user || req.user.id !== id) {
 				res.status(403).json({
-					success: false,
+					response: {},
 					message: 'You cannot perform this action.',
 				});
 
@@ -95,31 +93,29 @@ class UserController extends Controller {
 			}
 
 			try {
-				await getRepository(User).update({ id }, data);
+				const response = await getRepository(User).update({ id }, data);
+
+				res.status(200).json({
+					response,
+					message: 'User updated sucessfully.',
+				});
 			} catch (error) {
+				console.log(error);
 				res.status(500).json({
-					success: false,
-					errors: error.message,
+					response: {},
 					message: 'Something went wrong, please try again.',
 				});
-				console.log(error);
 
 				return;
 			}
 
-			res.status(200).json({
-				success: true,
-				message: 'User updated sucessfully.',
-			});
-
 			return;
 		} catch (error) {
+			console.log(error);
 			res.status(401).json({
-				success: false,
-				errors: error.message,
+				response: {},
 				message: 'You are not allowed to perform this action',
 			});
-			console.error(error);
 
 			return;
 		}
@@ -131,18 +127,17 @@ class UserController extends Controller {
 			await getRepository(User).delete({ id });
 
 			res.status(200).json({
-				success: true,
+				response: {},
 				message: 'User successfully deleted',
 			});
 
 			return;
 		} catch (error) {
+			console.log(error);
 			res.status(401).json({
-				success: false,
-				errors: error.message,
+				response: {},
 				message: 'You are not allowed to perform this action',
 			});
-			console.error(error);
 
 			return;
 		}
