@@ -1,15 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import * as passport from 'passport';
+import '../services/passport';
 
-export const requireLogin = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	if (req.isAuthenticated()) {
-		return next();
-	}
-
-	res.status(403).json({ success: false, message: 'Access Denied.' });
-
-	return;
-}
+export default passport.authenticate('jwt', { session: false });
