@@ -1,3 +1,4 @@
+// / <reference types="../express-mysql-session/index.d.ts" />
 import 'reflect-metadata';
 import * as compression from 'compression';
 import * as bodyParser from 'body-parser';
@@ -6,10 +7,9 @@ import * as logger from 'morgan';
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as frameguard from 'frameguard';
-import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
-import * as mysqlStore from 'express-mysql-session';
+import * as MySQLStore from 'express-mysql-session';
 import * as passport from 'passport';
 import { getRepository, createConnection } from 'typeorm';
 
@@ -23,19 +23,19 @@ import {
 } from './controllers';
 
 import { User } from './models';
+import logging from './lib/services/logging';
 
 class Server {
-	public app: express.Application;
+	app: express.Application;
 
 	constructor() {
-		dotenv.config();
 		this.app = express();
 		this.dbInit();
 		this.config();
 		this.routes();
 	}
 
-	public config() {
+	config() {
 		this.app.disable('x-powered-by');
 		this.app.use(frameguard({ action: 'deny' }));
 		this.app.use(bodyParser.urlencoded({ extended: true }));
@@ -54,10 +54,10 @@ class Server {
 		// this.app.use(csrf());
 		this.app.use(
 			session({
-				secret: `${process.env.SESSION_SECRET}`,
-				saveUninitialized: true,
-				resave: false,
-				store: new mysqlStore({
+				secret: String(process.env.SESSION_SECRET),
+				saveUninitialized: false,
+				resave: true,
+				store: new MySQLStore({
 					host: process.env.DB_HOST,
 					port: Number(process.env.DB_PORT),
 					user: process.env.DB_USER,
@@ -82,7 +82,7 @@ class Server {
 						Date.now() + Number(process.env.SESSION_EXPIRE)
 					),
 					maxAge: Number(process.env.SESSION_EXPIRE),
-					domain: `${process.env.CLIENT_URL}`,
+					domain: String(process.env.CLIENT_URL),
 					sameSite: true,
 				},
 			})
@@ -91,7 +91,7 @@ class Server {
 		this.app.use(passport.session());
 	}
 
-	public async dbInit() {
+	async dbInit() {
 		const host = process.env.DB_HOST;
 		const database = process.env.DB_DATABASE;
 		const password = process.env.DB_PASSWORD;
@@ -120,7 +120,7 @@ class Server {
 		await connection.connect();
 	}
 
-	public async routes() {
+	async routes() {
 		const router: express.Router = express.Router();
 
 		this.app.use('/', router);
@@ -142,19 +142,21 @@ class Server {
 
 				done(null, user);
 			} catch (error) {
-				console.log('Error: ', error);
+				console.log('Error In Passport Deserialize: ', error);
 				done(error, false);
 			}
 		});
+
 		this.app.use(
+			'*',
 			(
 				err: express.ErrorRequestHandler,
-				req: express.Request,
+				_: express.Request,
 				res: express.Response,
 				next: express.NextFunction
 			) => {
-				console.log(err);
-				console.log(req);
+				logging.info(Error('Wow'));
+				console.log('Error: ', err);
 				res.status(404).json({
 					success: false,
 					message: '404 - Page not found.',

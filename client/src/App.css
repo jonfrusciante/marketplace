@@ -3,11 +3,14 @@
 @import '~@blueprintjs/core/lib/css/blueprint.css';
 @import '~slick-carousel/slick/slick.css';
 @import '~slick-carousel/slick/slick-theme.css';
+@import url('https://fonts.googleapis.com/css?family=Roboto');
 
 html,
 body {
+	font-family: 'Roboto', 'sans-serif', 'arial';
 	height: 100%;
 	color: #212121;
+	background: #f6f6f6;
 }
 
 img {

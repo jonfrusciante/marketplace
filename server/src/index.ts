@@ -2,6 +2,7 @@
 import * as http from 'http';
 import * as debug from 'debug';
 import * as dotenv from 'dotenv';
+import logging from './lib/services/logging';
 
 import Server from './server';
 
@@ -11,7 +12,6 @@ debug('ts-express:server');
 const port = normalizePort(process.env.PORT || 8080);
 
 Server.set('port', port);
-console.log(process.env.PORT);
 console.log(`Server Listening on port ${port}`);
 
 const server = http.createServer(Server);
@@ -34,6 +34,7 @@ export function normalizePort(
 }
 
 export function onError(error: NodeJS.ErrnoException): void {
+	logging.error(error);
 	if (error.syscall !== 'listen') {
 		throw error;
 	}
