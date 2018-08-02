@@ -57,6 +57,7 @@ class Server {
 				secret: String(process.env.SESSION_SECRET),
 				saveUninitialized: false,
 				resave: true,
+				name: String(process.env.SESSION_NAME),
 				store: new MySQLStore({
 					host: process.env.DB_HOST,
 					port: Number(process.env.DB_PORT),
