@@ -1,0 +1,17 @@
+.welcome-message {
+	background: #ffa00c;
+	color: #ffffff;
+	border: 0 solid #ffa00c;
+	padding: 25px;
+	font-weight: bold;
+	display: flex;
+	height: 100%;
+	width: 100%;
+	position: relative;
+	margin-bottom: 1rem;
+}
+
+.welcome-message-text {
+	font-size: 1.2em;
+	font-weight: lighter;
+}
