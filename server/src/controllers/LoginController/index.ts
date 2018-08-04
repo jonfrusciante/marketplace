@@ -42,12 +42,13 @@ class LoginController extends Controller {
 		}
 
 		try {
-			const data = { email: '', password: '' };
+			const email = this.escapeString(req.body.email);
+			const password = this.escapeString(req.body.password);
 
-			const user = await getUserByEmail(data.email);
+			const user = await getUserByEmail(email);
 
 			if (user === null) {
-				res.status(400).json({
+				res.status(422).json({
 					response: {},
 					message: 'User does not exist.',
 				});
@@ -57,13 +58,13 @@ class LoginController extends Controller {
 
 			const verified = await verifyPassword(
 				String(user.password),
-				String(data.password)
+				String(password)
 			);
 
 			if (!verified) {
-				res.status(400).json({
+				res.status(422).json({
 					response: {},
-					message: 'Password is incorrect.',
+					message: 'Incorrect Login credentials.',
 				});
 
 				return;

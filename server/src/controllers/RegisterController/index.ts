@@ -49,19 +49,21 @@ class RegisterController extends Controller {
 		}
 
 		try {
-			const data = new User();
+			const email = this.escapeString(req.body.email);
+			const name = this.escapeString(req.body.name);
+			const password = this.escapeString(req.body.password);
 
-			const userEmailExist = await getUserByEmail(data.email);
+			const userEmailExist = await getUserByEmail(email);
 
 			if (userEmailExist !== null) {
 				res.status(422).json(messages.error422);
 
 				return;
 			}
-			let password;
+			let hashedPassword;
 			try {
-				if (data.password) {
-					password = await hashPassword(new Buffer(data.password));
+				if (password) {
+					hashedPassword = await hashPassword(new Buffer(password));
 				}
 			} catch (error) {
 				console.log(error);
@@ -77,9 +79,11 @@ class RegisterController extends Controller {
 				return;
 			}
 
-			data.password = password;
-
-			const user = User.create({ ...data });
+			const user = User.create({
+				email,
+				name,
+				password: String(hashedPassword),
+			});
 
 			try {
 				await user.save();
