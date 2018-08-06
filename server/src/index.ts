@@ -1,9 +1,6 @@
-// / <reference types="_all.d.ts" />
 import * as http from 'http';
 import * as debug from 'debug';
 import * as dotenv from 'dotenv';
-import logging from './lib/services/logging';
-
 import Server from './server';
 
 dotenv.config();
@@ -33,8 +30,16 @@ export function normalizePort(
 	}
 }
 
+server.on('uncaughtException', (exception: any) => {
+	console.error('uncaughtException: ', exception);
+});
+
+server.on('unhandledRejection', (reason: any, p: any) => {
+	console.error('Unhandled Rejection: ', p, ' reason: ', reason);
+});
+
 export function onError(error: NodeJS.ErrnoException): void {
-	logging.error(error);
+	console.error(error);
 	if (error.syscall !== 'listen') {
 		throw error;
 	}
