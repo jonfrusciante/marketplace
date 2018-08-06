@@ -1,5 +1,7 @@
 import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
+
+import * as messages from '../../lib/helpers/messages';
 import requireLogin from '../../lib/middleware/requireLogin';
 
 class LogoutController extends Controller {
@@ -20,21 +22,14 @@ class LogoutController extends Controller {
 		try {
 			req.logout();
 			await req.session!.destroy(() => {
-				res.clearCookie('connect.sid');
-			});
-
-			res.status(200).json({
-				response: {},
-				message: "You've been logged out.",
+				res.clearCookie(String(process.env.SESSION_NAME))
+					.sendStatus(200);
 			});
 
 			return;
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({
-				response: {},
-				message: 'Something went wrong, please try again.',
-			});
+			res.status(500).json(messages.error500);
 
 			return;
 		}
