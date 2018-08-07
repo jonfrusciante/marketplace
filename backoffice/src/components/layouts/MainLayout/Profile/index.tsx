@@ -19,9 +19,7 @@ class P extends React.PureComponent<any, any> {
 					to="#"
 					className="nav-link nav-link-profile"
 					data-toggle="dropdown">
-					<span className="logged-name hidden-md-down">
-						{name}
-					</span>
+					<span className="logged-name hidden-md-down">{name}</span>
 					<img
 						src="http://via.placeholder.com/500x500"
 						className="wd-32 rounded-circle"

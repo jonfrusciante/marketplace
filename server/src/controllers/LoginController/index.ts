@@ -70,7 +70,6 @@ class LoginController extends Controller {
 				return;
 			}
 
-			let token;
 			req.login(user.id, (error: any) => {
 				if (error) {
 					res.status(500).json(messages.error500);
@@ -78,19 +77,21 @@ class LoginController extends Controller {
 					return;
 				}
 
-				token = sign(user);
+				const token = sign(user);
+
+				const response = {
+					id: user.id,
+					name: user.name,
+					email: user.email,
+					token,
+				};
+
+				res.set('X-USER-TOKEN', req.sessionID);
+
+				res.status(200).json({ response, message: 'Success' });
+
+				return;
 			});
-
-			const response = {
-				id: user.id,
-				name: user.name,
-				email: user.email,
-				token,
-			};
-
-			res.set('X-USER-TOKEN', req.sessionID);
-
-			res.status(200).json({ response, message: 'Success' });
 
 			return;
 		} catch (error) {
