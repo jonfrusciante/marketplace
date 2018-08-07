@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { FormGroup, InputGroup } from '@blueprintjs/core';
+// import { ItemRenderer, MultiSelect } from '@blueprintjs/select';
 
 interface State {
 	categories: string;

@@ -14,7 +14,7 @@ interface Props extends Settings {
 
 class Carousel extends React.PureComponent<Props, any> {
 	static defaultProps: Partial<Props> = {
-		customPaging: () => <a>--</a>,
+		customPaging: () => <a className="pagination-buttons">--</a>,
 		dots: true,
 		infinite: true,
 		speed: 800,
@@ -51,8 +51,6 @@ class Carousel extends React.PureComponent<Props, any> {
 				},
 			},
 		],
-		// nextArrow: 'next',
-		// prevArrow: 'prev',
 	};
 
 	renderSlides = (data: Data[]) => {

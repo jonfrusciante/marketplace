@@ -7,7 +7,7 @@
 		"tsc": "npx tsc",
 		"tsc-w": "npx tsc -w",
 		"test": "jest --notify",
-		"start": "npm run tsc && node ./build/index.js"
+		"start": "npm run tsc --verbose && node ./build/index.js --verbose"
 	},
 	"author": "Duran Humes",
 	"license": "MIT",
@@ -66,6 +66,7 @@
 		"@types/winston": "^2.3.9",
 		"jest": "^23.3.0",
 		"morgan": "^1.9.0",
+		"nodemon": "^1.18.3",
 		"ts-jest": "^23.0.0",
 		"tslint": "^5.10.0",
 		"tslint-config-prettier": "^1.13.0",

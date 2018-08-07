@@ -11,6 +11,18 @@ import {
 	VersionColumn,
 } from 'typeorm';
 
+/*
+quantity: number,
+active: boolean,
+price: number(Cents),
+salePrice?: number(Cents),
+saleStartDate?: Date(ISO),
+saleEndDate?: Date(ISO),
+size?: string,
+color?: string,
+description: string
+*/
+
 import { Product } from '..';
 
 @Entity('productSku')
@@ -29,19 +41,31 @@ export default class ProductSku extends BaseEntity {
 	@Column({ type: 'int', width: 11, nullable: false })
 	stock: number;
 
-	@Column('varchar', { length: 255 })
+	@Column('varchar', { length: 255, nullable: true })
 	color: string;
 
-	@Column('varchar', { length: 255 })
+	@Column('varchar', { length: 255, nullable: true })
 	size: string;
 
-	@Column('int', { width: 11 })
+	@Column('int', { width: 11, nullable: false })
 	price: number;
+
+	@Column('int', { width: 11, nullable: true })
+	shippingPrice: number;
+
+	@Column('int', { width: 11, nullable: true })
+	salePrice: number;
+
+	@Column({ nullable: true })
+	saleStartDate: Date;
+
+	@Column({ nullable: true })
+	saleEndDate: Date;
 
 	@Column('text', { nullable: false })
 	description: string;
 
-	@Column('tinyint', { width: 1, default: 0, nullable: false })
+	@Column('tinyint', { width: 1, default: 1, nullable: false })
 	active: boolean;
 
 	@CreateDateColumn({ type: 'timestamp' })

@@ -1,8 +1,9 @@
 import { USER_AUTH, USER_LOGOUT, USER_AUTH_FAILURE } from '../../actions/types';
 
-const initialState = localStorage.getItem('user')
-	? JSON.parse(localStorage.getItem('user') || '')
-	: {};
+let initialState = {};
+if (localStorage.getItem('user')) {
+	initialState = JSON.parse(localStorage.getItem('user') || '');
+}
 
 export default (state: any = initialState, { type, payload }: any): any => {
 	switch (type) {

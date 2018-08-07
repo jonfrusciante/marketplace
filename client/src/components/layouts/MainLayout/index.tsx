@@ -16,12 +16,13 @@ class MainLayout extends React.Component<any, any> {
 		const childrenWithProps = React.Children.map(children, (child: any) =>
 			React.cloneElement(child, { ...this.props })
 		);
+		const displayDivider = !user.token ? 'divider' : '';
 		return (
 			<React.Fragment>
 				<div className="container-fluid shadow">
 					<Header user={userInfo} />
 				</div>
-				<div className="divider" />
+				<div className={displayDivider} />
 				<div className="App">
 					<section className="h-100">
 						<div className="container-fluid h-100">

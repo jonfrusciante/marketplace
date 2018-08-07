@@ -3,15 +3,10 @@ import { Request, Response, NextFunction } from 'express';
 export const roles = {
 	Customer: 'Customer',
 	Admin: 'Admin',
-	Vendor: 'Vendor'
-}
+	Vendor: 'Vendor',
+};
 
-export const checkRole = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	console.log(req);
+export const checkRole = (req: Request, res: Response, next: NextFunction) => {
 	if (req.user!.role === roles.Admin) {
 		console.log('Is admin');
 		return next();
@@ -26,4 +21,4 @@ export const checkRole = (
 	res.status(403).json({ success: false, message: 'Access Denied.' });
 
 	return;
-}
+};

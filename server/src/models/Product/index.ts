@@ -7,11 +7,23 @@ import {
 	BeforeInsert,
 	CreateDateColumn,
 	UpdateDateColumn,
-	ManyToMany,
 	VersionColumn,
 } from 'typeorm';
 
-import { ProductSku } from '..';
+/**
+	id: uuid;
+	name: string;
+	vendorId: string;
+	slug: string;
+	active: boolean;
+	description: string;
+	images: [
+		ImageId(Generated): {
+			imageUrl: string,
+			featured(Only 1): boolean
+		}
+	];
+**/
 
 @Entity('product')
 export default class Product extends BaseEntity {
@@ -26,8 +38,17 @@ export default class Product extends BaseEntity {
 	@Column('varchar', { length: 255, nullable: false, unique: true })
 	slug: string;
 
-	@Column('tinyint', { width: 1, default: 0, nullable: false })
+	@Column('tinyint', { width: 1, default: 1, nullable: false })
 	active: boolean;
+
+	@Column('text', { nullable: false })
+	description: string;
+
+	@Column('text', { nullable: false })
+	variants: string;
+
+	@Column('text', { nullable: false })
+	images: string;
 
 	@CreateDateColumn({ type: 'timestamp' })
 	createdAt: Date;
@@ -37,13 +58,6 @@ export default class Product extends BaseEntity {
 
 	@VersionColumn({ default: 1 })
 	version: number;
-
-	@ManyToMany(() => ProductSku, productSku => productSku.productId, {
-		cascade: true,
-		onDelete: 'CASCADE',
-		onUpdate: 'CASCADE',
-	})
-	productSku: ProductSku[];
 
 	@BeforeInsert()
 	addId() {

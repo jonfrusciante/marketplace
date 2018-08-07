@@ -6,6 +6,7 @@ export const userLogin = (formValues: any, navigate: () => void) => async (
 	dispatch: any
 ) => {
 	try {
+		const { email, password } = formValues;
 		const request = await fetch(loginUrl, {
 			method: 'POST',
 			mode: 'cors',
@@ -13,9 +14,17 @@ export const userLogin = (formValues: any, navigate: () => void) => async (
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8',
 			},
-			body: JSON.stringify(formValues),
+			body: JSON.stringify({ email, password }),
 		});
-		const { response } = await request.json();
+		const { response, message } = await request.json();
+		if (request.status !== 200) {
+			return dispatch({
+				type: USER_AUTH_FAILURE,
+				payload: { message },
+			});
+
+			return;
+		}
 
 		await localStorage.setItem('user', JSON.stringify(response));
 
@@ -26,7 +35,7 @@ export const userLogin = (formValues: any, navigate: () => void) => async (
 
 		navigate();
 	} catch (error) {
-		console.log('Login Error: ', error);
+		console.dir('Login Error: ', error);
 
 		return dispatch({
 			type: USER_AUTH_FAILURE,

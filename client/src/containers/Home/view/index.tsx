@@ -10,7 +10,9 @@ class View extends React.PureComponent<any, any> {
 		const { user } = this.props;
 		if (user && user.token) {
 			return (
-				<div className="welcome-message">Welcome back {user.name}</div>
+				<div className="welcome-message">
+					<p className="welcome-message-text">Hello, {user.name}</p>
+				</div>
 			);
 		}
 

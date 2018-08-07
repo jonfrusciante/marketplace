@@ -32,7 +32,7 @@ class App extends React.Component<any, any> {
 }
 
 const mapDispatchToProps = (dispatch: any) =>
-	bindActionCreators({...userAuthCheck}, dispatch);
+	bindActionCreators({ ...userAuthCheck }, dispatch);
 
 export default connect(
 	null,

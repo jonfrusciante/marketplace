@@ -11,6 +11,10 @@ class H extends React.Component<any, any> {
 		super(props);
 	}
 
+	componentDidMount() {
+		document.title = 'Home';
+	}
+
 	render() {
 		return (
 			<MainLayout>

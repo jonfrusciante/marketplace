@@ -5,6 +5,7 @@ const registerUrl = `${process.env.REACT_APP_BACKEND_API_URL}/register`;
 export const userRegister = (formValues: any, navigate: () => void) => async (
 	dispatch: any
 ) => {
+	const { name, email, password } = formValues;
 	try {
 		const request = await fetch(registerUrl, {
 			method: 'POST',
@@ -13,7 +14,7 @@ export const userRegister = (formValues: any, navigate: () => void) => async (
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8',
 			},
-			body: JSON.stringify(formValues),
+			body: JSON.stringify({ name, email, password }),
 		});
 		const { response } = await request.json();
 

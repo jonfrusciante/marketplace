@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 import './styles.css';
 
@@ -6,14 +7,13 @@ export default class Logo extends React.Component<{}, {}> {
 	render() {
 		return (
 			<React.Fragment>
-				<a href="/">
+				<Link to="/">
 					<img
-						src="/img/amazon.png"
+						src="/img/amazon-logo.png"
 						alt="amazon"
 						className="img-fluid"
-						height={40}
 					/>
-				</a>
+				</Link>
 			</React.Fragment>
 		);
 	}

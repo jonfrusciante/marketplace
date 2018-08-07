@@ -1,4 +1,3 @@
-// / <reference types="../express-mysql-session/index.d.ts" />
 import 'reflect-metadata';
 import * as compression from 'compression';
 import * as bodyParser from 'body-parser';
@@ -7,7 +6,6 @@ import * as logger from 'morgan';
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as frameguard from 'frameguard';
-import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import * as MySQLStore from 'express-mysql-session';
 import * as passport from 'passport';
@@ -18,12 +16,11 @@ import {
 	RegisterController,
 	LoginController,
 	LogoutController,
-	TokenController,
 	ProductController,
+	CategoryController,
+	AuthController,
 } from './controllers';
-
 import { User } from './models';
-import logging from './lib/services/logging';
 
 class Server {
 	app: express.Application;
@@ -46,17 +43,14 @@ class Server {
 		this.app.use(
 			cors({
 				credentials: true,
-				origin: `${process.env.CLIENT_URL}`,
-				exposedHeaders: ['Content-Type', 'Authorization'],
+				origin: String(process.env.CLIENT_URL),
 			})
 		);
-		this.app.use(cookieParser());
-		// this.app.use(csrf());
 		this.app.use(
 			session({
 				secret: String(process.env.SESSION_SECRET),
 				saveUninitialized: false,
-				resave: true,
+				resave: false,
 				name: String(process.env.SESSION_NAME),
 				store: new MySQLStore({
 					host: process.env.DB_HOST,
@@ -66,6 +60,7 @@ class Server {
 					database: process.env.DB_DATABASE,
 					expiration: Number(process.env.SESSION_EXPIRE),
 					createDatabaseTable: true,
+					checkExpirationInterval: Number(process.env.SESSION_EXPIRE),
 					schema: {
 						tableName: 'session',
 						columnNames: {
@@ -77,8 +72,8 @@ class Server {
 				}),
 				cookie: {
 					path: '/',
-					httpOnly: false,
-					secure: false,
+					httpOnly: true,
+					secure: true,
 					expires: new Date(
 						Date.now() + Number(process.env.SESSION_EXPIRE)
 					),
@@ -86,6 +81,7 @@ class Server {
 					domain: String(process.env.CLIENT_URL),
 					sameSite: true,
 				},
+				unset: 'destroy',
 			})
 		);
 		this.app.use(passport.initialize());
@@ -125,12 +121,13 @@ class Server {
 		const router: express.Router = express.Router();
 
 		this.app.use('/', router);
+		this.app.use('/api/v1/authCheck', AuthController);
 		this.app.use('/api/v1/user', UserController);
 		this.app.use('/api/v1/register', RegisterController);
 		this.app.use('/api/v1/login', LoginController);
 		this.app.use('/api/v1/logout', LogoutController);
-		this.app.use('/api/v1/token', TokenController);
 		this.app.use('/api/v1/product', ProductController);
+		this.app.use('/api/v1/category', CategoryController);
 		passport.serializeUser((user, done) => {
 			done(null, user);
 		});
@@ -147,19 +144,19 @@ class Server {
 				done(error, false);
 			}
 		});
-
+		this.app.get('/favicon.ico', (_: any, res: express.Response) =>
+			res.status(204)
+		);
 		this.app.use(
-			'*',
 			(
 				err: express.ErrorRequestHandler,
 				_: express.Request,
 				res: express.Response,
 				next: express.NextFunction
 			) => {
-				logging.info(Error('Wow'));
 				console.log('Error: ', err);
 				res.status(404).json({
-					success: false,
+					response: {},
 					message: '404 - Page not found.',
 				});
 

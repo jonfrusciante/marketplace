@@ -22,8 +22,9 @@ class LogoutController extends Controller {
 		try {
 			req.logout();
 			await req.session!.destroy(() => {
-				res.clearCookie(String(process.env.SESSION_NAME))
-					.sendStatus(200);
+				res.clearCookie(String(process.env.SESSION_NAME)).sendStatus(
+					200
+				);
 			});
 
 			return;

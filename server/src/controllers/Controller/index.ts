@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import * as escape from 'escape-html';
 
 class Controller {
 	constructor() {

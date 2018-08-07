@@ -10,6 +10,10 @@ class P extends React.Component<any, any> {
 		super(props);
 	}
 
+	componentDidMount() {
+		document.title = 'Products';
+	}
+
 	render() {
 		const { match, location } = this.props;
 		const links = location.pathname

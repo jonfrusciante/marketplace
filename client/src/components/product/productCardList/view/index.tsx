@@ -7,16 +7,19 @@ import '../style/index.css';
 
 const renderCards = (data: ProductsI) =>
 	data.map((item: any) => {
-		console.log('Item: ', item);
+		const { title, image, brand, price: p, currency } = item;
+		const price = p / 100;
+		price.toLocaleString('en-US', { style: 'currency', currency });
 		return (
-			<div className="product-card" key={item.title}>
+			<div className="product-card" key={title}>
 				<a href="#">
-					<img src={item.image} alt={item.title} />
+					<img src={image} alt={title} />
 					<p>
-						{item.title} by <strong>{item.brand}</strong>
+						<span className="product-name">{title}</span> by{' '}
+						<strong>{brand}</strong>
 					</p>
 					<p>
-						<strong>${item.price}</strong>
+						<strong>${price}</strong>
 					</p>
 				</a>
 			</div>
