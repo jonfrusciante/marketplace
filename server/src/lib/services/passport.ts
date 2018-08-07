@@ -11,6 +11,13 @@ const jwtOptions = {
 
 const jwtLogin = new Strategy(jwtOptions, async (payload, done) => {
 	const id = payload.sub;
+	const timestamp = new Date().getTime();
+	if (payload.exp <= timestamp) {
+		done(null, false);
+
+		return;
+	}
+
 	try {
 		const user = await getRepository(User).findOne({
 			where: { id },

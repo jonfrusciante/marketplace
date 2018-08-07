@@ -4,13 +4,15 @@ import { body, validationResult } from 'express-validator/check';
 
 import { User } from '../../models';
 import { hashPassword } from '../../lib/auth/password';
+import { sign } from '../../lib/auth/userToken';
 import { getUserByEmail } from '../../models/User/helpers';
 import * as messages from '../../lib/helpers/messages';
 
 const validation = [
 	body('email')
 		.isEmail()
-		.normalizeEmail(),
+		.normalizeEmail()
+		.escape(),
 	body('name')
 		.not()
 		.isEmpty()
@@ -60,6 +62,7 @@ class RegisterController extends Controller {
 
 				return;
 			}
+
 			let hashedPassword;
 			try {
 				if (password) {
@@ -94,23 +97,30 @@ class RegisterController extends Controller {
 				return;
 			}
 
-			const response = {
-				id: user.id,
-				name: user.name,
-				email: user.email,
-			};
-
-			req.login(response.id, (error: any) => {
+			req.login(user.id, (error: any) => {
 				if (error) {
 					res.status(500).json(messages.error500);
 
 					return;
 				}
 
+				const token = sign(user);
+
+				const response = {
+					id: user.id,
+					name: user.name,
+					email: user.email,
+					token,
+				};
+
+				res.set('X-USER-TOKEN', req.sessionID);
+
 				res.status(200).json({ response, message: 'Success' });
 
 				return;
 			});
+
+			return;
 		} catch (error) {
 			console.log(error);
 			res.status(500).json(messages.error500);
