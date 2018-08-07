@@ -23,11 +23,11 @@ export default class Category extends BaseEntity {
 	@Column('varchar', { length: 255, nullable: false, unique: true })
 	slug: string;
 
-	@Column('text', { nullable: false })
-	description: string;
-
-	@Column('tinyint', { width: 1, default: 0, nullable: false })
+	@Column('tinyint', { width: 1, default: 1, nullable: false })
 	active: boolean;
+
+	@Column('varchar', { length: 255, nullable: true })
+	parentId: string;
 
 	@CreateDateColumn({ type: 'timestamp' })
 	createdAt: Date;
@@ -52,5 +52,10 @@ export default class Category extends BaseEntity {
 	@BeforeInsert()
 	addId() {
 		this.id = uuid();
+		this.slug = `${this.name
+			.replace(/[^a-zA-Z]+/gi, '')
+			.split(' ')
+			.join('-')
+			.toLowerCase()}-${uuid().substring(0, 8)}`;
 	}
 }
