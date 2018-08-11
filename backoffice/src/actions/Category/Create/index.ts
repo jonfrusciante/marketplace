@@ -3,12 +3,9 @@ import {
 	CATEGORY_FAILURE,
 	USER_AUTH_FAILURE,
 } from '../../types';
+import userToken from '../../../helpers/getUserToken';
 
 const categoryUrl = `${process.env.REACT_APP_BACKEND_API_URL}/category`;
-
-const userToken = localStorage.getItem('user')
-	? JSON.parse(localStorage.getItem('user') || '')
-	: null;
 
 export const createCategory = (formValues: any, navigate: () => void) => async (
 	dispatch: any
@@ -21,7 +18,7 @@ export const createCategory = (formValues: any, navigate: () => void) => async (
 				cache: 'no-cache',
 				headers: {
 					'Content-Type': 'application/json; charset=utf-8',
-					authorization: userToken.token,
+					authorization: userToken,
 				},
 				body: JSON.stringify(formValues),
 			});

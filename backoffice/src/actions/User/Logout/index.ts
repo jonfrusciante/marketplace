@@ -1,10 +1,9 @@
 import { USER_LOGOUT, USER_LOGOUT_FAILURE } from '../../types';
+import userToken from '../../../helpers/getUserToken';
 
 const logoutUrl = `${process.env.REACT_APP_BACKEND_API_URL}/logout`;
 
 export const userLogout = (navigate: () => void) => async (dispatch: any) => {
-	const { token } = JSON.parse(localStorage.getItem('user') || '');
-
 	try {
 		await fetch(logoutUrl, {
 			method: 'POST',
@@ -12,7 +11,7 @@ export const userLogout = (navigate: () => void) => async (dispatch: any) => {
 			cache: 'no-cache',
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8',
-				authorization: token,
+				authorization: userToken,
 			},
 		});
 

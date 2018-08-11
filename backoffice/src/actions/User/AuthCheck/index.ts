@@ -1,14 +1,12 @@
 import { USER_AUTH_CHECK, USER_AUTH_FAILURE } from '../../types';
+import userToken from '../../../helpers/getUserToken';
 
 const authUrl = `${process.env.REACT_APP_BACKEND_API_URL}/authCheck`;
 
-export const userAuthCheck = (navigate: () => void) => async (
+export const userAuthCheck = () => async (
 	dispatch: any
 ) => {
-	const user = localStorage.getItem('user')
-		? await JSON.parse(localStorage.getItem('user') || '')
-		: null;
-	if (user) {
+	if (userToken) {
 		try {
 			const request = await fetch(authUrl, {
 				method: 'POST',
@@ -16,7 +14,7 @@ export const userAuthCheck = (navigate: () => void) => async (
 				cache: 'no-cache',
 				headers: {
 					'Content-Type': 'application/json; charset=utf-8',
-					authorization: user.token,
+					authorization: userToken,
 				},
 			});
 
