@@ -5,6 +5,8 @@ import MainLayout from '../../components/layouts/MainLayout';
 import AuthenticatedCheck from '../../hoc/AuthenticatedCheck';
 import { Index, Create, Update, View } from './pages';
 
+import './style/index.css';
+
 class C extends React.Component<any, any> {
 	constructor(props: any) {
 		super(props);
@@ -12,7 +14,6 @@ class C extends React.Component<any, any> {
 
 	render() {
 		const { match, location } = this.props;
-		console.log(this.props);
 		const links = location.pathname
 			.split('/')
 			.filter((v: string) => v !== '');
@@ -59,11 +60,11 @@ class C extends React.Component<any, any> {
 							component={Create}
 						/>
 						<Route
-							path={`${match.path}/update/:categorySlug`}
+							path={`${match.path}/update/:id`}
 							component={Update}
 						/>
 						<Route
-							path={`${match.path}/view/:categorySlug`}
+							path={`${match.path}/view/:id`}
 							component={View}
 						/>
 					</Switch>

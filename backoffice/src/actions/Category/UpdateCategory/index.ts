@@ -1,18 +1,22 @@
 import {
-	CREATE_CATEGORY,
+	UPDATE_CATEGORY,
 	CATEGORY_FAILURE,
 	USER_AUTH_FAILURE,
 } from '../../types';
-import userToken from '../../../helpers/getUserToken';
-import { category } from '../../endpoints';
 
-export const createCategory = (formValues: any, navigate: () => void) => async (
-	dispatch: any
-) => {
+import { category } from '../../endpoints';
+import { Category } from '../../../containers/Categories/types';
+import userToken from '../../../helpers/getUserToken';
+
+export const updateCategory = (
+	formValues: Partial<Category>,
+	id: string,
+	navigate: () => void
+) => async (dispatch: any) => {
 	if (userToken) {
 		try {
-			const request = await fetch(category, {
-				method: 'POST',
+			const request = await fetch(`${category}/${id}`, {
+				method: 'PUT',
 				mode: 'cors',
 				cache: 'no-cache',
 				headers: {
@@ -24,13 +28,13 @@ export const createCategory = (formValues: any, navigate: () => void) => async (
 			const { response } = await request.json();
 
 			dispatch({
-				type: CREATE_CATEGORY,
+				type: UPDATE_CATEGORY,
 				payload: response,
 			});
 
 			return navigate();
 		} catch (error) {
-			console.dir('Category Creation Error: ', error);
+			console.dir('Category Update Error: ', error);
 
 			return dispatch({
 				type: CATEGORY_FAILURE,

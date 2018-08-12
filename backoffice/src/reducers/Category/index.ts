@@ -10,29 +10,17 @@ import {
 export default (state: object = {}, { type, payload }: any): object => {
 	switch (type) {
 		case GET_CATEGORY:
-			console.log('Category Payload: ', payload);
-			console.log('Category State: ', state);
-			return {};
+			return { ...state, ...payload };
 		case GET_CATEGORIES:
-			console.log('Category Payload: ', payload);
-			console.log('Category State: ', state);
 			return { ...state, ...payload };
 		case CREATE_CATEGORY:
-			console.log('Category Payload: ', payload);
-			console.log('Category State: ', state);
-			return {};
+			return { ...state, ...payload };
 		case UPDATE_CATEGORY:
-			console.log('Category Payload: ', payload);
-			console.log('Category State: ', state);
-			return {};
+			return { ...state, ...payload };
 		case DELETE_CATEGORY:
-			console.log('Category Payload: ', payload);
-			console.log('Category State: ', state);
-			return {};
+			return { ...state, ...payload };
 		case CATEGORY_FAILURE:
-			console.log('Category Payload: ', payload);
-			console.log('Category State: ', state);
-			return {};
+			return { ...state, ...payload };
 		default:
 			return state;
 	}

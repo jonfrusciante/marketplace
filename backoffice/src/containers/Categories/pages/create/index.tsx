@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Tab, Tabs } from '@blueprintjs/core';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import { Form, Review } from './tabs';
+import Form from '../../components/Form';
+import Loading from '../../../../components/loading';
 import * as CategoryActions from '../../../../actions/Category';
 
 const validate = Yup.object().shape({
@@ -15,18 +15,16 @@ const validate = Yup.object().shape({
 });
 
 class C extends React.PureComponent<any, any> {
+	public loadingTimeout: any;
+
 	state = {
-		animate: true,
-		tabId: 0,
-		categories: [],
 		name: '',
 		parentId: '',
+		categories: [],
+		loading: true
 	};
 
-	handleTabChange = (tabId: number) => this.setState({ tabId });
-
 	handleSubmit = async (values: any): Promise<void> => {
-		console.log('Form Values: ', values);
 		this.props.createCategory(values, () => {
 			this.props.history.push('/categories');
 		});
@@ -36,6 +34,14 @@ class C extends React.PureComponent<any, any> {
 		const { payload: categories } = await this.props.getCategories();
 		this.setState({ categories });
 		document.title = 'Categories';
+
+		this.loadingTimeout = window.setTimeout(() => {
+			this.setState({ loading: false });
+		}, Number(process.env.REACT_APP_LOADING_SPINNER_TIMEOUT));
+	}
+
+	componentWillUnmount() {
+		clearTimeout(this.loadingTimeout);
 	}
 
 	renderForm = ({
@@ -62,40 +68,19 @@ class C extends React.PureComponent<any, any> {
 	);
 
 	render() {
-		console.log('Categories Props: ', this.props);
-		let hideReviewTab = true;
-		if (this.state.name.length > 0) {
-			hideReviewTab = false;
+		const { name, parentId, loading } = this.state;
+		if (loading) {
+			return (
+				<Loading />
+			);
 		}
-		const { name, parentId } = this.state;
-		console.log('Cat State: ', this.state);
 		return (
-			<Tabs
-				id="categories-form"
-				onChange={this.handleTabChange}
-				selectedTabId={this.state.tabId}
-				animate={true}
-				renderActiveTabPanelOnly={true}>
-				<Tab
-					id={0}
-					title="Form"
-					panel={
-						<Formik
-							initialValues={{ name, parentId }}
-							onSubmit={this.handleSubmit}
-							render={this.renderForm}
-							validationSchema={validate}
-						/>
-					}
-				/>
-				<Tab
-					id={1}
-					disabled={hideReviewTab}
-					title="Review"
-					panel={<Review />}
-				/>
-				<Tabs.Expander />
-			</Tabs>
+			<Formik
+				initialValues={{ name, parentId }}
+				onSubmit={this.handleSubmit}
+				render={this.renderForm}
+				validationSchema={validate}
+			/>
 		);
 	}
 }

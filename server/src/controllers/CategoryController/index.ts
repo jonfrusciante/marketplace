@@ -42,8 +42,6 @@ class CategoryController extends Controller {
 			}
 		}
 
-		console.log('Category: ', req.body);
-
 		try {
 			const response = await getRepository(Category).save(category);
 
@@ -64,10 +62,12 @@ class CategoryController extends Controller {
 	public getCategory = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const id = this.escapeString(req.params.id);
-			const category = await getRepository(Category).findOne({ id });
+			const sql =
+				'SELECT (SELECT c2.name FROM category c2 WHERE c1.parentId = c2.id) as parentCategory, c1.id, c1.name, c1.slug, c1.parentId FROM category c1 WHERE id = ? LIMIT 1';
+			const category = await getRepository(Category).query(sql, [id]);
 			if (typeof category !== 'undefined') {
 				res.status(200).json({
-					response: category,
+					response: category[0],
 					message: 'Success',
 				});
 
@@ -93,7 +93,9 @@ class CategoryController extends Controller {
 
 	public getCategories = async (_: Request, res: Response): Promise<void> => {
 		try {
-			const categories = await getRepository(Category).find();
+			const sql =
+				'SELECT (SELECT c2.name FROM category c2 WHERE c1.parentId = c2.id) as parentCategory, c1.id, c1.name, c1.slug FROM category c1';
+			const categories = await getRepository(Category).query(sql);
 			if (typeof categories !== 'undefined') {
 				res.status(200).json({
 					response: categories,
@@ -181,8 +183,30 @@ class CategoryController extends Controller {
 		const id = this.escapeString(req.params.id);
 		const category = await getRepository(Category).findOne({ id });
 		if (typeof category !== 'undefined') {
+			// Reset to '0' all instances where the category being deleted is the parent of another category
+			const categories = await getRepository(Category).find({
+				parentId: id,
+			});
+			if (typeof categories !== 'undefined') {
+				try {
+					categories.map(async (childCategory: Category) => {
+						const { id: childCategoryId } = childCategory;
+						await getRepository(Category).update(
+							{ id: childCategoryId },
+							{ parentId: '0' }
+						);
+
+						return Promise.resolve();
+					});
+				} catch (error) {
+					res.status(500).json(messages.error500);
+
+					return;
+				}
+			}
+			// Remove the category
 			try {
-				await category.remove();
+				await await getRepository(Category).delete({ id });
 
 				res.status(200).json({
 					response: {},

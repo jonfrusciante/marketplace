@@ -1,0 +1,9 @@
+.page-back-button {
+	display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.page-back-button a {
+	margin-right: 60px;
+}

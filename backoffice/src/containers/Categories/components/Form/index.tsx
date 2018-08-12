@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { FormGroup, InputGroup, HTMLSelect, Button } from '@blueprintjs/core';
+import { Link } from 'react-router-dom';
+import { FormGroup, InputGroup, HTMLSelect, Button, Icon } from '@blueprintjs/core';
 
 export default class Form extends React.PureComponent<any, any> {
 	constructor(props: any) {
@@ -16,19 +17,15 @@ export default class Form extends React.PureComponent<any, any> {
 			isValid,
 			loading,
 			onBlur,
+			categories,
 			values: { name, parentId },
 		} = this.props;
-		console.log(this.props);
 		return (
 			<div className="container">
 				<FormGroup
 					label="Category Name"
 					labelFor="name"
-					helperText={
-						touched.name && errors.name
-							? errors.name
-							: 'This will be used to generate the category url slug'
-					}
+					helperText={touched.name && errors.name ? errors.name : undefined}
 					intent={touched.name && errors.name ? 'danger' : undefined}>
 					<InputGroup
 						id="name"
@@ -50,7 +47,7 @@ export default class Form extends React.PureComponent<any, any> {
 					helperText={
 						touched.parentId && errors.parentId
 							? errors.parentId
-							: 'Your newly create category will be a sub category of this'
+							: undefined
 					}
 					intent={
 						touched.parentId && errors.parentId
@@ -63,28 +60,37 @@ export default class Form extends React.PureComponent<any, any> {
 						fill={true}
 						disabled={disabled}
 						onBlur={onBlur}
+						value={parentId}
 						onChange={onChange}>
 						<option>-- select --</option>
-						{this.props.categories.map((category: any) => (
-							<option
-								value={category.id}
-								key={category.id}
-								defaultValue={parentId}>
+						{categories.map((category: any) => (
+							<option value={category.id} key={category.id}>
 								{category.name}
 							</option>
 						))}
 					</HTMLSelect>
 				</FormGroup>
 				<FormGroup>
-					<Button
-						intent="primary"
-						icon="arrow-right"
-						type="submit"
-						fill={true}
-						disabled={!isValid || loading}
-						loading={loading}
-						onClick={onSubmit}
-					/>
+					<div className="row">
+						<div className="col-md-6">
+							<div className="page-back-button">
+								<Link to="/categories" className="bp3-button bp3-fill bp3-intent-warning">
+									<Icon icon="arrow-left" />
+								</Link>
+							</div>
+						</div>
+						<div className="col-md-6">
+							<Button
+								intent="primary"
+								icon="arrow-right"
+								type="submit"
+								fill={true}
+								disabled={!isValid || loading}
+								loading={loading}
+								onClick={onSubmit}
+							/>
+						</div>
+					</div>
 				</FormGroup>
 			</div>
 		);
