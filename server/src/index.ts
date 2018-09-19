@@ -6,7 +6,7 @@ import Server from './server';
 dotenv.config();
 debug('ts-express:server');
 
-const port = normalizePort(process.env.PORT || 8080);
+const port = normalizePort(process.env.PORT || 8081);
 
 Server.set('port', port);
 console.log(`Server Listening on port ${port}`);
