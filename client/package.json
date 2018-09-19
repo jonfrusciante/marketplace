@@ -8,10 +8,11 @@
 		}
 	},
 	"dependencies": {
+		"@babel/runtime": "^7.0.0-beta.55",
 		"@blueprintjs/core": "^3.0.1",
 		"@blueprintjs/datetime": "^3.0.0",
 		"@blueprintjs/select": "^3.0.0",
-		"babel-runtime": "5.8.38",
+		"babel-runtime": "^7.0.0-beta.55",
 		"dotenv": "^6.0.0",
 		"formik": "^1.0.2",
 		"jest": "^23.4.2",
@@ -27,7 +28,7 @@
 		"redux-devtools-extension": "^2.13.5",
 		"redux-thunk": "^2.3.0",
 		"slick-carousel": "^1.8.1",
-		"yup": "0.25.1"
+		"yup": "^0.26.2"
 	},
 	"scripts": {
 		"start": "react-scripts-ts start",
