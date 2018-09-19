@@ -43,7 +43,7 @@ class Server {
 		this.app.use(
 			cors({
 				credentials: true,
-				origin: String(process.env.CLIENT_URL),
+				origin: process.env.CLIENT_URL,
 			})
 		);
 		this.app.use(
@@ -51,7 +51,7 @@ class Server {
 				secret: String(process.env.SESSION_SECRET),
 				saveUninitialized: false,
 				resave: false,
-				name: String(process.env.SESSION_NAME),
+				name: process.env.SESSION_NAME,
 				store: new MySQLStore({
 					host: process.env.DB_HOST,
 					port: Number(process.env.DB_PORT),
@@ -60,6 +60,7 @@ class Server {
 					database: process.env.DB_DATABASE,
 					expiration: Number(process.env.SESSION_EXPIRE),
 					createDatabaseTable: true,
+					clearExpired: true,
 					checkExpirationInterval: Number(process.env.SESSION_EXPIRE),
 					schema: {
 						tableName: 'session',
@@ -78,7 +79,7 @@ class Server {
 						Date.now() + Number(process.env.SESSION_EXPIRE)
 					),
 					maxAge: Number(process.env.SESSION_EXPIRE),
-					domain: String(process.env.CLIENT_URL),
+					domain: process.env.CLIENT_URL,
 					sameSite: true,
 				},
 				unset: 'destroy',

@@ -5,7 +5,10 @@
 		"target": "es5",
 		"module": "commonjs",
 		"lib": ["dom", "es6", "es2017", "esnext.asynciterable"],
-		"typeRoots": ["node_modules/@types"],
+		"typeRoots": ["node_modules/@types", "./types"],
+		"paths": {
+			"*": ["./src/types/*"]
+		},
 		"sourceMap": true,
 		"allowJs": true,
 		"moduleResolution": "node",
@@ -23,7 +26,8 @@
 		"strictFunctionTypes": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true
 	},
 	"include": ["./src"],
 	"exclude": ["node_modules", "build", "tests"]
