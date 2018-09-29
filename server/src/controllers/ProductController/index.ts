@@ -2,7 +2,7 @@ import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
-import { Product } from '../../models';
+import { Products } from '../../models';
 import requireLogin from '../../lib/middleware/requireLogin';
 import { roles } from '../../lib/middleware/checkRole';
 import * as messages from '../../lib/helpers/messages';
@@ -28,8 +28,8 @@ class ProductController extends Controller {
 	public getProduct = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const slug = this.escapeString(req.params.slug);
-			const sql = `SELECT p.id, p.name, p.vendorId, p.slug, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId WHERE p.slug = ?`;
-			const product = await getRepository(Product).query(sql, [slug]);
+			const sql = `SELECT p.id, p.name, p.vendorId, p.slug, p.description, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, sku.images, 'images', 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId WHERE p.slug = ?`;
+			const product = await getRepository(Products).query(sql, [slug]);
 			if (typeof product !== 'undefined') {
 				const skus = JSON.parse(product[0].productSkus);
 				delete product[0].productSkus;
@@ -64,7 +64,7 @@ class ProductController extends Controller {
 	public getProducts = async (_: Request, res: Response): Promise<void> => {
 		try {
 			const sql = `SELECT p.id, p.name, p.vendorId, p.slug, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId GROUP BY p.id`;
-			const products = await getRepository(Product).query(sql);
+			const products = await getRepository(Products).query(sql);
 			if (typeof products !== 'undefined') {
 				const response = products.map((p: any) => {
 					return {
@@ -109,7 +109,7 @@ class ProductController extends Controller {
 			if (req.user) {
 				const vendorId = req.params.id;
 				const sql = `SELECT p.id, p.name, p.vendorId, p.slug, JSON_ARRAYAGG(JSON_OBJECT('id', sku.id, 'name', sku.name, 'price', sku.price, 'slug', sku.slug, 'description', sku.description)) AS productSkus FROM product AS p LEFT JOIN productSku AS sku ON p.id = sku.productId WHERE vendorId = ? GROUP BY p.id`;
-				const products = await getRepository(Product).query(sql, [
+				const products = await getRepository(Products).query(sql, [
 					vendorId,
 				]);
 				if (typeof products !== 'undefined') {
@@ -148,7 +148,7 @@ class ProductController extends Controller {
 	): Promise<void> => {
 		try {
 			const slug = this.escapeString(req.params.slug);
-			const product = await getRepository(Product).findOne({ slug });
+			const product = await getRepository(Products).findOne({ slug });
 
 			if (
 				req.user!.role !== roles.Admin &&
@@ -169,7 +169,7 @@ class ProductController extends Controller {
 					}
 				}
 
-				const response = await getRepository(Product).update(
+				const response = await getRepository(Products).update(
 					{ slug },
 					product
 				);
@@ -205,7 +205,7 @@ class ProductController extends Controller {
 	): Promise<void> => {
 		try {
 			const slug = this.escapeString(req.params.slug);
-			const product = await getRepository(Product).findOne({ slug });
+			const product = await getRepository(Products).findOne({ slug });
 
 			if (typeof product !== 'undefined') {
 				if (

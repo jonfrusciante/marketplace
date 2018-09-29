@@ -2,10 +2,10 @@ import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator/check';
 
-import { User } from '../../models';
+import { Users } from '../../models';
 import { hashPassword } from '../../lib/auth/password';
 import { sign } from '../../lib/auth/userToken';
-import { getUserByEmail } from '../../models/User/helpers';
+import { getUserByEmail } from '../../models/Users/helpers';
 import * as messages from '../../lib/helpers/messages';
 
 const validation = [
@@ -55,9 +55,9 @@ class RegisterController extends Controller {
 			const name = this.escapeString(req.body.name);
 			const password = this.escapeString(req.body.password);
 
-			const userEmailExist = await getUserByEmail(email);
+			const userExists = await getUserByEmail(email);
 
-			if (userEmailExist !== null) {
+			if (userExists !== null) {
 				res.status(422).json(messages.error422);
 
 				return;
@@ -82,7 +82,7 @@ class RegisterController extends Controller {
 				return;
 			}
 
-			const user = User.create({
+			const user = Users.create({
 				email,
 				name,
 				password: String(hashedPassword),
