@@ -3,27 +3,24 @@ import {
 	Column,
 	CreateDateColumn,
 	UpdateDateColumn,
-	OneToOne,
+	ManyToMany,
 	VersionColumn,
 	PrimaryColumn,
 	BeforeInsert,
 } from 'typeorm';
 
-import { Model, Users } from '..';
+import { Model, Products } from '..';
 
-@Entity('cart')
-export default class Cart extends Model {
+@Entity('relatedProducts')
+export default class RelatedProducts extends Model {
 	@PrimaryColumn('uuid')
 	id: string;
 
-	@Column('varchar', { length: 255, nullable: false, unique: true })
-	userId: string;
+	@Column('varchar', { length: 255, nullable: false })
+	originalProductId: string;
 
-	@Column('text')
-	cart: string;
-
-	@Column('text')
-	wishlist: string;
+	@Column('varchar', { length: 255, nullable: false })
+	relatedProductId: string;
 
 	@CreateDateColumn({ type: 'timestamp' })
 	createdAt: Date;
@@ -34,15 +31,15 @@ export default class Cart extends Model {
 	@VersionColumn({ default: 1 })
 	version: number;
 
-	@OneToOne(() => Users, user => user.id, {
+	@ManyToMany(() => Products, product => product.id, {
 		cascade: true,
 		onDelete: 'CASCADE',
 		onUpdate: 'CASCADE',
 	})
-	user: Users;
+	product: Products[];
 
 	@BeforeInsert()
-	genId() {
+	addId() {
 		this.id = this.genUuid();
 	}
 }

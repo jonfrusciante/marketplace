@@ -1,8 +1,6 @@
-import * as uuid from 'uuid/v4';
 import {
 	Entity,
 	Column,
-	BaseEntity,
 	CreateDateColumn,
 	UpdateDateColumn,
 	ManyToMany,
@@ -11,11 +9,12 @@ import {
 	BeforeInsert,
 } from 'typeorm';
 
-import { CategoryProduct } from '..';
+import { Model, CategoryProducts } from '..';
 
 @Entity('category')
-export default class Category extends BaseEntity {
-	@PrimaryColumn('uuid') id: string;
+export default class Category extends Model {
+	@PrimaryColumn('uuid')
+	id: string;
 
 	@Column('varchar', { length: 255, nullable: false, unique: true })
 	name: string;
@@ -39,7 +38,7 @@ export default class Category extends BaseEntity {
 	version: number;
 
 	@ManyToMany(
-		() => CategoryProduct,
+		() => CategoryProducts,
 		categoryProduct => categoryProduct.categoryId,
 		{
 			cascade: true,
@@ -47,15 +46,11 @@ export default class Category extends BaseEntity {
 			onUpdate: 'CASCADE',
 		}
 	)
-	categoryProduct: CategoryProduct[];
+	categoryProduct: CategoryProducts[];
 
 	@BeforeInsert()
 	addId() {
-		this.id = uuid();
-		this.slug = `${this.name
-			.replace(/[^a-zA-Z]+/gi, '')
-			.split(' ')
-			.join('-')
-			.toLowerCase()}-${uuid().substring(0, 8)}`;
+		this.id = this.genUuid();
+		this.slug = this.genSlug(this.name);
 	}
 }

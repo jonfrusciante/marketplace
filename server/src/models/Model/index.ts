@@ -6,7 +6,15 @@ export default class Model extends BaseEntity {
 		return str.toLowerCase();
 	}
 
-	public genUuid() {
+	public genUuid(): string {
 		return uuid();
+	}
+
+	public genSlug(name: string): string {
+		return `${name
+			.replace(/[^a-zA-Z]+/gi, '')
+			.split(' ')
+			.join('-')
+			.toLowerCase()}-${this.genUuid().substring(0, 8)}`;
 	}
 }
