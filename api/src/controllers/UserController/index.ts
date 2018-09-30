@@ -2,7 +2,7 @@ import { Controller } from '../Controller';
 import { Router, Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
-import { User } from '../../models';
+import { Users } from '../../models';
 import requireLogin from '../../lib/middleware/requireLogin';
 import * as messages from '../../lib/helpers/messages';
 
@@ -26,7 +26,7 @@ class UserController extends Controller {
 	public getUser = async (req: Request, res: Response): Promise<void> => {
 		try {
 			const id = this.escapeString(req.params.id);
-			const response = await getRepository(User).findOne({
+			const response = await getRepository(Users).findOne({
 				select: ['id', 'name', 'email'],
 				where: { id },
 			});
@@ -47,7 +47,7 @@ class UserController extends Controller {
 
 	public getUsers = async (_: Request, res: Response): Promise<void> => {
 		try {
-			const response = await getRepository(User).find({
+			const response = await getRepository(Users).find({
 				select: ['id', 'name', 'email'],
 				order: {
 					name: 'DESC',
@@ -91,7 +91,10 @@ class UserController extends Controller {
 			}
 
 			try {
-				const response = await getRepository(User).update({ id }, data);
+				const response = await getRepository(Users).update(
+					{ id },
+					data
+				);
 
 				res.status(200).json({
 					response,
@@ -116,7 +119,7 @@ class UserController extends Controller {
 	public deleteUser = async (req: Request, res: Response): Promise<void> => {
 		const id: string = req.params.id;
 		try {
-			await getRepository(User).delete({ id });
+			await getRepository(Users).delete({ id });
 
 			res.status(200).json({
 				response: {},

@@ -61,7 +61,6 @@
 		"@types/supertest": "^2.0.6",
 		"@types/uuid": "^3.4.4",
 		"@types/validator": "^9.4.2",
-		"@types/winston": "^2.4.4",
 		"jest": "^23.6.0",
 		"morgan": "^1.9.1",
 		"nodemon": "^1.18.4",

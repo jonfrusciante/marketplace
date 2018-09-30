@@ -4,7 +4,7 @@ import { body, validationResult } from 'express-validator/check';
 
 import { verifyPassword } from '../../lib/auth/password';
 import { sign } from '../../lib/auth/userToken';
-import { getUserByEmail } from '../../models/User/helpers';
+import { getUserByEmail } from '../../models/Users/helpers';
 import * as messages from '../../lib/helpers/messages';
 
 const validation = [

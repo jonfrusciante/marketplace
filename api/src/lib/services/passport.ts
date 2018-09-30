@@ -2,7 +2,7 @@ import * as passport from 'passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { getRepository } from 'typeorm';
 
-import { User } from '../../models';
+import { Users } from '../../models';
 
 const jwtOptions = {
 	jwtFromRequest: ExtractJwt.fromHeader('authorization'),
@@ -19,7 +19,7 @@ const jwtLogin = new Strategy(jwtOptions, async (payload, done) => {
 	}
 
 	try {
-		const user = await getRepository(User).findOne({
+		const user = await getRepository(Users).findOne({
 			where: { id },
 		});
 		if (user === null) {

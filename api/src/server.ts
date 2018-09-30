@@ -20,7 +20,7 @@ import {
 	CategoryController,
 	AuthController,
 } from './controllers';
-import { User } from './models';
+import { Users } from './models';
 
 class Server {
 	app: express.Application;
@@ -135,7 +135,7 @@ class Server {
 
 		passport.deserializeUser(async (id, done) => {
 			try {
-				const user = await getRepository(User).findOne(id, {
+				const user = await getRepository(Users).findOne(id, {
 					select: ['id', 'name', 'email', 'role'],
 				});
 

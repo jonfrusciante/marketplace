@@ -14,6 +14,8 @@
 ## Tech used
 - Node JS (Typescript)
 - React & Redux
+- MySQL
+- Nginx
 - Elasticsearch
 - Docker
 
